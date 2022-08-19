@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="dfmatic:jar">
+    <output-path>$PROJECT_DIR$/../../jars/</output-path>
+    <root id="archive" name="dfmatic.jar">
+      <element id="module-output" name="dfmatic.main" />
+      <element id="library" level="project" name="Gradle: org.slf4j:slf4j-api:1.7.36" />
+      <element id="library" level="project" name="Gradle: org.java-websocket:Java-WebSocket:1.5.3" />
+    </root>
+  </artifact>
+</component>
