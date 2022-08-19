@@ -1,0 +1,118 @@
+package me.fallow64.dfmatic.ast;
+
+import me.fallow64.dfmatic.Token;
+import me.fallow64.dfmatic.TokenType;
+
+import java.util.List;
+import java.util.HashMap;
+
+public abstract class Stmt {
+    public interface Visitor<R> {
+        R visitVariableStmt(Variable stmt);
+        R visitReturnStmt(Return stmt);
+        R visitIfStmt(If stmt);
+        R visitDFIfStmt(DFIf stmt);
+        R visitDFStmt(DF stmt);
+        R visitExpressionStmt(Expression stmt);
+    }
+    public static class Variable extends Stmt {
+        public Variable(Token name, TokenType type, Expr expression) {
+            this.name = name;
+            this.type = type;
+            this.expression = expression;
+        }
+
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitVariableStmt(this);
+        }
+
+        public final Token name;
+        public final TokenType type;
+        public final Expr expression;
+    }
+    public static class Return extends Stmt {
+        public Return(Token keyword, Expr value) {
+            this.keyword = keyword;
+            this.value = value;
+        }
+
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitReturnStmt(this);
+        }
+
+        public final Token keyword;
+        public final Expr value;
+    }
+    public static class If extends Stmt {
+        public If(Expr left, Token operator, Expr right, boolean inverted, List<Stmt> ifBranch, List<Stmt> elseBranch) {
+            this.left = left;
+            this.operator = operator;
+            this.right = right;
+            this.inverted = inverted;
+            this.ifBranch = ifBranch;
+            this.elseBranch = elseBranch;
+        }
+
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitIfStmt(this);
+        }
+
+        public final Expr left;
+        public final Token operator;
+        public final Expr right;
+        public final boolean inverted;
+        public final List<Stmt> ifBranch;
+        public final List<Stmt> elseBranch;
+    }
+    public static class DFIf extends Stmt {
+        public DFIf(Token block, Token action, List<Expr> args, boolean inverted, List<Stmt> ifBranch, List<Stmt> elseBranch) {
+            this.block = block;
+            this.action = action;
+            this.args = args;
+            this.inverted = inverted;
+            this.ifBranch = ifBranch;
+            this.elseBranch = elseBranch;
+        }
+
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitDFIfStmt(this);
+        }
+
+        public final Token block;
+        public final Token action;
+        public final List<Expr> args;
+        public final boolean inverted;
+        public final List<Stmt> ifBranch;
+        public final List<Stmt> elseBranch;
+    }
+    public static class DF extends Stmt {
+        public DF(Token blockName, Token actionName, HashMap<Token,Token> tags, List<Expr> arguments) {
+            this.blockName = blockName;
+            this.actionName = actionName;
+            this.tags = tags;
+            this.arguments = arguments;
+        }
+
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitDFStmt(this);
+        }
+
+        public final Token blockName;
+        public final Token actionName;
+        public final HashMap<Token,Token> tags;
+        public final List<Expr> arguments;
+    }
+    public static class Expression extends Stmt {
+        public Expression(Expr expression) {
+            this.expression = expression;
+        }
+
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitExpressionStmt(this);
+        }
+
+        public final Expr expression;
+    }
+
+    public abstract <R> R accept(Visitor<R> visitor);
+}

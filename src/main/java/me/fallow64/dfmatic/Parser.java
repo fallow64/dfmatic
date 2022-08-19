@@ -1,0 +1,375 @@
+package me.fallow64.dfmatic;
+
+import me.fallow64.dfmatic.ast.Expr;
+import me.fallow64.dfmatic.ast.Sect;
+import me.fallow64.dfmatic.ast.Stmt;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+// TODO make error messages more concise (look it's hard okay)
+public class Parser {
+    private static class ParseError extends RuntimeException {}
+
+    private final List<Token> tokens;
+    private int current = 0;
+
+    public Parser(List<Token> tokens) {
+        this.tokens = tokens;
+    }
+
+    public List<Sect> parse() {
+        List<Sect> sections = new ArrayList<>();
+        while(!isAtEnd()) {
+            sections.add(section());
+        }
+
+        return sections;
+    }
+
+      // ================================================== //
+     //                     Section                        //
+    // ================================================== //
+
+    private Sect section() {
+        try {
+            if(match(TokenType.EVENT)) return eventSection();
+            if(match(TokenType.FUNC)) return functionSection();
+
+            throw error(peek(), "Expect either event or function section.");
+        } catch(ParseError error) {
+            synchronize();
+        }
+        return null;
+    }
+
+    private Sect.Event eventSection() {
+        Token name = consume(TokenType.STRING, "Expect event name in string.");
+        consume(TokenType.LEFT_BRACE, "Expect '{' after event declaration.");
+        List<Stmt> body = block();
+        return new Sect.Event(name, body);
+    }
+
+    private Sect.Function functionSection() {
+        Token name = consume(TokenType.IDENTIFIER, "Expect function name.");
+        consume(TokenType.LEFT_PAREN, "Expect '(' after function name.");
+
+        List<Token> parameters = parameters();
+
+        consume(TokenType.RIGHT_PAREN, "Expect ')' after function parameters.");
+
+        consume(TokenType.LEFT_BRACE, "Expect '{' before function body.");
+        List<Stmt> body = block();
+
+        return new Sect.Function(name, parameters, body);
+    }
+
+    private List<Stmt> block() {
+        List<Stmt> statements = new ArrayList<>();
+        while(!check(TokenType.RIGHT_BRACE) && !isAtEnd()) {
+            statements.add(statement());
+        }
+        consume(TokenType.RIGHT_BRACE, "Expect '}' after block.");
+        return statements;
+    }
+
+      // ================================================== //
+     //                   Statement                        //
+    // ================================================== //
+
+    private Stmt statement() { //TODO while, for, return
+        if(match(TokenType.VAR)) return varStatement();
+        if(match(TokenType.IF)) return ifStatement();
+        if(match(TokenType.STRING)) return dfStatement();
+        if(match(TokenType.RETURN)) return returnStatement();
+
+        return expressionStatement();
+    }
+
+    private Stmt.Variable varStatement() {
+        Token name = consume(TokenType.IDENTIFIER, "Expect identifier after variable declaration");
+        TokenType type = TokenType.LOCAL;
+        if(match(TokenType.COLON)) {
+            if(match(TokenType.LOCAL, TokenType.GAME, TokenType.SAVE)) {
+                type = previous().getTokenType();
+            } else {
+                throw error(peek(), "Expect variable scope.");
+            }
+        }
+
+        Expr expr = null;
+        if(match(TokenType.EQUAL)) {
+            expr = expression();
+        }
+
+        consume(TokenType.SEMICOLON, "Expect ';' after variable statement.");
+        return new Stmt.Variable(name, type, expr);
+    }
+
+    private Stmt ifStatement() { // instead of Stmt.If this returns Stmt because it can be either Stmt.If or Stmt.DFIf
+        boolean inverted = match(TokenType.NOT);
+
+        if(check(TokenType.STRING)) {
+            Token block = consume(TokenType.STRING, "Expect block name in string."); //unreachable error
+            consume(TokenType.COLON, "Expect ':' after block name");
+            Token action = consume(TokenType.STRING, "Expect action name in string.");
+
+            consume(TokenType.LEFT_PAREN, "Expect '(' before arguments.");
+            List<Expr> args = arguments();
+            consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments.");
+
+            consume(TokenType.LEFT_BRACE, "Expect '{' before block.");
+            List<Stmt> ifBranch = block();
+            List<Stmt> elseBranch = null;
+            if (match(TokenType.ELSE)) {
+                consume(TokenType.LEFT_BRACE, "Expect '{' before block.");
+                elseBranch = block();
+            }
+
+            return new Stmt.DFIf(block, action, args, inverted, ifBranch, elseBranch);
+        } else {
+            consume(TokenType.LEFT_PAREN, "Expect '(' before check.");
+            Expr left = expression();
+            Token operator;
+            if(match(TokenType.EQUAL_EQUAL, TokenType.BANG_EQUAL, TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL)) {
+                operator = previous();
+            } else {
+                throw error(peek(), "Expected valid check condition (==, !=, >, >=, < or <=).");
+            }
+            Expr right = expression();
+            consume(TokenType.RIGHT_PAREN, "Expect ')' after check.");
+
+            consume(TokenType.LEFT_BRACE, "Expect '{' before block.");
+            List<Stmt> ifBranch = block();
+            List<Stmt> elseBranch = null;
+            if (match(TokenType.ELSE)) {
+                consume(TokenType.LEFT_BRACE, "Expect '{' before block.");
+                elseBranch = block();
+            }
+
+            return new Stmt.If(left, operator, right, inverted, ifBranch, elseBranch);
+        }
+    }
+
+    private Stmt.DF dfStatement() {
+        Token blockName = previous();
+        consume(TokenType.COLON, "Expect ':' after block name.");
+        Token actionName = consume(TokenType.STRING, "Expect string after semicolon in DF statement.");
+
+        consume(TokenType.LESS, "Expect '<' after action name.");
+        HashMap<Token, Token> tags = tags();
+        consume(TokenType.GREATER, "Expect '>' after action tags.");
+
+        consume(TokenType.LEFT_PAREN, "Expect '(' after action tags.");
+
+        List<Expr> arguments = arguments();
+
+        consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments.");
+
+        consume(TokenType.SEMICOLON, "Expect ';' after DF statement.");
+
+        return new Stmt.DF(blockName, actionName, tags, arguments);
+    }
+
+    private Stmt.Return returnStatement() {
+        Token keyword = previous();
+        Expr value = null;
+        if (!check(TokenType.SEMICOLON)) {
+            value = expression();
+        }
+
+        consume(TokenType.SEMICOLON, "Expect ';' after return value.");
+        return new Stmt.Return(keyword, value);
+    }
+
+    private Stmt.Expression expressionStatement() {
+        Expr expr = expression();
+        consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+        return new Stmt.Expression(expr);
+    }
+
+      // ================================================== //
+     //                    Expression                      //
+    // ================================================== //
+
+    private Expr expression() {
+        return assignment();
+    }
+
+    private Expr assignment() {
+        Expr expr = term();
+
+        if(match(TokenType.EQUAL)) {
+            Token equals = previous();
+            Expr value = assignment();
+
+            if (expr instanceof Expr.Variable) {
+                Token name = ((Expr.Variable)expr).name;
+                return new Expr.Assign(name, value);
+            }
+
+            error(equals, "Invalid assignment target.");
+        }
+        return expr;
+    }
+
+    private Expr term() {
+        Expr expr = factor();
+
+        while(match(TokenType.PLUS, TokenType.MINUS)) {
+            Token operator = previous();
+            Expr right = factor();
+            expr = new Expr.Binary(expr, operator, right);
+        }
+        return expr;
+    }
+
+    private Expr factor() {
+        Expr expr = unary();
+
+        while(match(TokenType.STAR, TokenType.SLASH)) {
+            Token operator = previous();
+            Expr right = unary();
+            expr = new Expr.Binary(expr, operator, right);
+        }
+        return expr;
+    }
+
+    private Expr unary() {
+        if(match(TokenType.MINUS)) {
+             Token operator = previous();
+             Expr right = primary();
+             return new Expr.Unary(operator, right);
+        }
+
+        return call();
+    }
+
+    private Expr call() {
+        Expr expr = primary();
+
+
+        if(match(TokenType.LEFT_PAREN)) {
+            if(expr instanceof Expr.Variable) {
+                List<Expr> arguments = arguments();
+                consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments.");
+                return new Expr.Call(((Expr.Variable) expr).name, arguments);
+            } else {
+                throw error(previous(), "Only identifiers can be called.");
+            }
+        }
+        return expr;
+    }
+
+    private Expr primary() {
+        if(match(TokenType.NUMBER, TokenType.STRING))
+            return new Expr.Literal(previous().getLiteral());
+        if(match(TokenType.IDENTIFIER))
+            return new Expr.Variable(previous());
+        if(match(TokenType.LEFT_PAREN)) {
+            Expr expr = expression();
+            consume(TokenType.RIGHT_PAREN, "Expect ')' after grouping expression.");
+            return new Expr.Grouping(expr);
+        }
+
+        throw error(peek(), "Expect expression.");
+    }
+
+      // ================================================== //
+     //                    Util                            //
+    // ================================================== //
+
+    private List<Expr> arguments() {
+        List<Expr> arguments = new ArrayList<>();
+        if (!check(TokenType.RIGHT_PAREN)) {
+            do {
+                arguments.add(expression());
+            } while (match(TokenType.COMMA));
+        }
+        return arguments;
+    }
+
+    private List<Token> parameters() {
+        List<Token> parameters = new ArrayList<>();
+        if (!check(TokenType.RIGHT_PAREN)) {
+            do {
+                parameters.add(consume(TokenType.IDENTIFIER, "Expect identifier in parameters."));
+            } while (match(TokenType.COMMA));
+        }
+        return parameters;
+    }
+
+    private HashMap<Token, Token> tags() {
+        HashMap<Token, Token> tokenMap = new HashMap<>();
+
+        if (!check(TokenType.GREATER)) {
+            do {
+                Token key = consume(TokenType.STRING, "Expect tag key in string.");
+                consume(TokenType.COLON, "Expect ':' between tag key and value.");
+                Token value = consume(TokenType.STRING, "Expect tag value in string.");
+                tokenMap.put(key, value);
+            } while (match(TokenType.COMMA));
+        }
+
+        return tokenMap;
+    }
+
+    private Token advance() {
+        if(!isAtEnd()) current++;
+        return previous();
+    }
+
+    private Token previous() {
+        return tokens.get(current - 1);
+    }
+
+    private Token peek() {
+        return tokens.get(current);
+    }
+
+    private boolean check(TokenType... types) {
+        if(isAtEnd()) return false;
+        for (TokenType type : types) {
+            if(peek().getTokenType() == type) return true;
+        }
+        return false;
+    }
+
+    private boolean match(TokenType... types) {
+        if(check(types)) {
+            advance();
+            return true;
+        }
+        return false;
+    }
+
+    private Token consume(TokenType type, String message) {
+        if(check(type)) return advance();
+
+        throw error(peek(), message);
+    }
+
+    private boolean isAtEnd() {
+        return peek().getTokenType() == TokenType.EOF;
+    }
+
+    private ParseError error(Token token, String message) {
+        DFMatic.error(token, message);
+        throw new ParseError();
+    }
+
+    private void synchronize() {
+        advance();
+
+        while(!isAtEnd()) {
+            if(previous().getTokenType() == TokenType.SEMICOLON) return;
+            switch(peek().getTokenType()) { //TODO implement while and for
+                case SAVE, GAME, LOCAL, EVENT, FUNC, VAR, IF -> { return; }
+            }
+
+            advance();
+        }
+    }
+}

@@ -1,0 +1,15 @@
+plugins {
+    id 'java'
+}
+
+group 'me.fallow64'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.java-websocket:Java-WebSocket:1.5.3'
+    implementation 'org.slf4j:slf4j-api:1.7.36'
+}
