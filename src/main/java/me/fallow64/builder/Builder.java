@@ -89,12 +89,10 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
 
     @Override
     public Void visitReturnStmt(Stmt.Return stmt) {
-        if(stmt.value != null) {
-            currentStack.add(new SetVariable("=", List.of(), List.of(
-                    new Variable("$rv", VariableScope.LOCAL),
-                    resolve(stmt.value)
-            )));
-        }
+        currentStack.add(new SetVariable("=", List.of(), List.of(
+                new Variable("$rv", VariableScope.LOCAL),
+                stmt.value != null ? resolve(stmt.value) : new Number("0")
+        )));
         currentStack.add(new Control("Return", List.of(), List.of()));
         return null;
     }
@@ -192,7 +190,7 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
     @Override
     public CodeValue visitLiteralExpr(Expr.Literal expr) {
         if(expr.value instanceof Double) {
-            return new Number(((Double)expr.value).toString());
+            return new Number(expr.value.toString());
         } else if(expr.value instanceof String) {
             return new Text((String) expr.value);
         }
