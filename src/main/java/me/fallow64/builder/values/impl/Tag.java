@@ -52,9 +52,7 @@ public class Tag implements CodeValue {
 
     public static List<Tag> fromHashmapFromToken(HashMap<Token, Token> hashMap, String action, String block) {
         ArrayList<Tag> result = new ArrayList<>();
-        hashMap.forEach((k, v) -> {
-            result.add(new Tag(v.getLexeme(), k.getLexeme(), action, block));
-        });
+        hashMap.forEach((k, v) -> result.add(new Tag((String)v.getLiteral(), (String)k.getLiteral(), action, block)));
         return result;
     }
 }

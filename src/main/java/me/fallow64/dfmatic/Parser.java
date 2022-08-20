@@ -84,10 +84,51 @@ public class Parser {
         if(match(TokenType.IF)) return ifStatement();
         if(match(TokenType.STRING)) return dfStatement();
         if(match(TokenType.RETURN)) return returnStatement();
+        if(match(TokenType.LOOP)) return loopStatement();
         if(match(TokenType.BREAK)) return breakStatement();
         if(match(TokenType.CONTINUE)) return continueStatement();
 
         return expressionStatement();
+    }
+
+    private Stmt.Loop loopStatement() {
+        Expr to = null;
+        Expr from = new Expr.Literal(1.0);
+        Expr step = new Expr.Literal(1.0);
+        TokenType varType = null;
+        Token varName = null;
+        if(match(TokenType.LEFT_PAREN)) {
+
+            if(match(TokenType.GAME, TokenType.LOCAL, TokenType.SAVE)) {
+                varType = previous().getTokenType();
+                varName = consume(TokenType.IDENTIFIER, "Expect variable name."); // loop( type varName
+
+                if (match(TokenType.FROM)) { // loop( type varName from EXPR to EXPR
+                    from = expression();
+                    consume(TokenType.TO, "Expect \"to\" after \"from\" expression.");
+                    to = expression();
+                    if (match(TokenType.STEP)) { // loop ( type? varName from EXPR to EXPR step EXPR
+                        step = expression();
+                    }
+                } else if (match(TokenType.TO)) {
+                    to = expression(); // loop ( type varName to EXPR
+                    if (match(TokenType.STEP)) { // loop ( type? varName to EXPR step EXPR
+                        step = expression();
+                    }
+                } else {
+                    throw error(peek(), "Expect valid loop operation (\"from\" or \"to\")");
+                }
+            } else {
+                to = expression();
+            }
+
+            consume(TokenType.RIGHT_PAREN, "Expect ')' after loop parameters.");
+            // loop(expression)
+        }
+
+        consume(TokenType.LEFT_BRACE, "Expect '{' after loop statement.");
+
+        return new Stmt.Loop(to, from, step, varType, varName, block());
     }
 
     private Stmt.Break breakStatement() {

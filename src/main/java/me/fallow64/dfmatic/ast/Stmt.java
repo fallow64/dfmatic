@@ -12,6 +12,7 @@ public abstract class Stmt {
         R visitReturnStmt(Return stmt);
         R visitBreakStmt(Break stmt);
         R visitContinueStmt(Continue stmt);
+        R visitLoopStmt(Loop stmt);
         R visitIfStmt(If stmt);
         R visitDFIfStmt(DFIf stmt);
         R visitDFStmt(DF stmt);
@@ -66,6 +67,27 @@ public abstract class Stmt {
         }
 
         public final Token keyword;
+    }
+    public static class Loop extends Stmt {
+        public Loop(Expr to, Expr from, Expr step, TokenType varType, Token varName, List<Stmt> block) {
+            this.to = to;
+            this.from = from;
+            this.step = step;
+            this.varType = varType;
+            this.varName = varName;
+            this.block = block;
+        }
+
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitLoopStmt(this);
+        }
+
+        public final Expr to;
+        public final Expr from;
+        public final Expr step;
+        public final TokenType varType;
+        public final Token varName;
+        public final List<Stmt> block;
     }
     public static class If extends Stmt {
         public If(Expr left, Token operator, Expr right, boolean inverted, List<Stmt> ifBranch, List<Stmt> elseBranch) {

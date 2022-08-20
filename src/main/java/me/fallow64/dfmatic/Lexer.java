@@ -27,6 +27,10 @@ public class Lexer {
         keywords.put("if", TokenType.IF);
         keywords.put("else", TokenType.ELSE);
         keywords.put("not", TokenType.NOT);
+        keywords.put("loop", TokenType.LOOP);
+        keywords.put("from", TokenType.FROM);
+        keywords.put("to", TokenType.TO);
+        keywords.put("step", TokenType.STEP);
         keywords.put("break", TokenType.BREAK);
         keywords.put("continue", TokenType.CONTINUE);
         keywords.put("return", TokenType.RETURN);

@@ -17,6 +17,6 @@ public class RepeatBracket implements CodeBlock {
 
     @Override
     public String serialize() {
-        return "{\"id\":\"bracket\",\"direct\":\"" + direction.getName()  + "\",\"type\":\"norm\"}";
+        return "{\"id\":\"bracket\",\"direct\":\"" + direction.getName()  + "\",\"type\":\"repeat\"}";
     }
 }

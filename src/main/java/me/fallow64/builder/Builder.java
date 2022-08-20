@@ -70,11 +70,7 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
     @Override
     public Void visitVariableStmt(Stmt.Variable stmt) {
         String varName = stmt.name.getLexeme();
-        VariableScope variableScope = VariableScope.LOCAL;
-        switch(stmt.type) { // exhaustive
-            case SAVE -> variableScope = VariableScope.SAVE;
-            case GAME -> variableScope = VariableScope.GAME;
-        }
+        VariableScope variableScope = toScope(stmt.type);
 
         environment.put(varName, variableScope);
 
@@ -84,6 +80,28 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
                     resolve(stmt.expression)
             )));
         }
+        return null;
+    }
+
+    @Override
+    public Void visitLoopStmt(Stmt.Loop stmt) {
+        if(stmt.varName != null) {
+            List<CodeValue> arguments = new ArrayList<>();
+            arguments.add(new Variable(stmt.varName.getLexeme(), toScope(stmt.varType))); //iterator variable
+            arguments.add(resolve(stmt.from));
+            arguments.add(resolve(stmt.to));
+            arguments.add(resolve(stmt.step));
+            environment.put(stmt.varName.getLexeme(), toScope(stmt.varType));
+
+            currentStack.add(new Repeat("Range", List.of(), arguments));
+        } else if(stmt.to != null) {
+            currentStack.add(new Repeat("Multiple", List.of(), List.of(resolve(stmt.to))));
+        } else {
+            currentStack.add(new Repeat("Forever", List.of(), List.of()));
+        }
+        currentStack.add(new RepeatBracket(BracketDirection.OPEN));
+        resolve(stmt.block);
+        currentStack.add(new RepeatBracket(BracketDirection.CLOSE));
         return null;
     }
 
@@ -122,7 +140,10 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
             case LESS -> action = "<";
         }
 
-        currentStack.add(new IfVariable(action, stmt.inverted, new ArrayList<>(), new ArrayList<>())); // TODO values
+        CodeValue left = resolve(stmt.left);
+        CodeValue right = resolve(stmt.right);
+
+        currentStack.add(new IfVariable(action, stmt.inverted, List.of(), List.of(left, right))); // TODO values
         currentStack.add(new Bracket(BracketDirection.OPEN));
         resolve(stmt.ifBranch);
         if(stmt.elseBranch != null) {
@@ -224,8 +245,6 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
         return new Variable("$rv", VariableScope.LOCAL);
     }
 
-
-
     @Override
     public CodeValue visitGroupingExpr(Expr.Grouping expr) {
         return resolve(expr.expression);
@@ -280,24 +299,14 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
 
     @Override
     public CodeValue visitUnaryExpr(Expr.Unary expr) {
-        Variable randomVar = RandomUtil.randomVar();
-        currentStack.add(new SetVariable("x", List.of(), List.of(
-            randomVar,
-            resolve(expr.right),
-            new Number("-1.0")
-        )));
-        return randomVar;
+        CodeValue value = resolve(expr.right);
+        String valueString = value instanceof Number ? ((Number) value).getValue() : "%var(" + ((Variable) value).getName() + ")";
+        return new Number("%math(" + valueString + "*-1)");
     }
 
     @Override
     public CodeValue visitVariableExpr(Expr.Variable expr) {
         VariableScope scope = getScope(expr.name.getLexeme());
-//        String tmpName = RandomUtil.randomName(); TODO make sure i didn't fuck this up
-//        currentStack.add(new SetVariable("=", List.of(), List.of(
-//                new Variable(tmpName, VariableScope.LOCAL),
-//                new Variable(expr.name.getLexeme(), scope)
-//        )));
-//        return new Variable(tmpName, VariableScope.LOCAL);
         return new Variable(expr.name.getLexeme(), scope);
     }
 
@@ -334,5 +343,14 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
 
     public CodeValue resolve(Expr expr) {
         return expr.accept(this);
+    }
+
+    public VariableScope toScope(TokenType type) {
+        switch(type) {
+            case SAVE -> { return VariableScope.SAVE; }
+            case GAME -> { return VariableScope.GAME; }
+            case LOCAL -> { return VariableScope.LOCAL; }
+            default -> { return null; }
+        }
     }
 }
