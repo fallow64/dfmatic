@@ -6,20 +6,23 @@ import me.fallow64.dfmatic.ast.Sect;
 import me.fallow64.util.ItemAPIUtil;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Objects;
 import java.util.Scanner;
 
 public class DFMatic {
 
     public static boolean hadError = false;
+    public static boolean codeUtils = true;
     public static final String version = "0.1";
 
     public static void main(String[] args) throws IOException {
+        List<String> listArgs = List.of(args);
+        if(listArgs.contains("--give")) {
+            codeUtils = false;
+        }
         if(args.length == 1) {
             runFile(args[0]);
         } else {
@@ -46,14 +49,13 @@ public class DFMatic {
     }
 
     private static void runRepl() {
-        Scanner scanner = new Scanner(System.in);
-
         System.out.println("DFMatic REPL v" + version);
+        System.out.println("Warning: The REPL is very glitchy. Use with caution.");
 
         while(true) { // TODO make sure >>> is always the last line if possible
             System.out.print(">>> ");
-            String source = scanner.next();
-            if(Objects.equals(source, "")) continue;
+            Scanner scanner = new Scanner(System.in);
+            String source = scanner.nextLine();
             source = "event \"Join\" {" + source + "}";
 
             List<CodeTemplate> templates = run(source);
@@ -75,23 +77,19 @@ public class DFMatic {
     }
 
     private static void report(int line, int column, String where, String message) {
-        System.err.println("[line " + line + ":" + column + "] Error" + where + ": " + message);
+        // this does not use System.err because of buffers messing up the order and stuff
+        System.out.println("[line " + line + ":" + column + "] Error" + where + ": " + message);
         hadError = true;
     }
 
     private static void sendTemplates(List<CodeTemplate> templates) {
-        boolean hadError = false;
-        for(CodeTemplate template : templates) {
-            try {
-                hadError = hadError || !ItemAPIUtil.sendTemplate(template);
-            } catch (Exception ignored) {}
-        }
-        if(hadError) {
-            System.out.println("could not connect to code utils. give commands (use /dfgive clipboard):");
+        if(codeUtils) {
+            System.out.println("attempting to send to codeutils...");
+            ItemAPIUtil.sendTemplates(templates);
+        } else {
+            System.out.println("/give commands:");
             for (CodeTemplate template : templates) {
-                try {
-                    System.out.println(template.genGiveCommand("DFMatic", 1));
-                } catch (Exception ignored) {} // wow you really really fucked up
+                System.out.println(template.genGiveCommand("DFMatic", 1));
             }
         }
     }

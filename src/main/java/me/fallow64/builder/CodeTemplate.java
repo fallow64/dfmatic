@@ -3,11 +3,8 @@ package me.fallow64.builder;
 import me.fallow64.builder.blocks.CodeBlock;
 import me.fallow64.builder.blocks.CodeHeader;
 import me.fallow64.util.CompressionUtil;
-import me.fallow64.util.ItemAPIClient;
-import me.fallow64.util.ItemAPIUtil;
 
 import java.io.IOException;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,11 +36,15 @@ public class CodeTemplate {
         return blocks;
     }
 
-    public String compressTemplate() throws IOException {
-        return new String(CompressionUtil.toBase64(CompressionUtil.toGZIP(uncompressedTemplate.getBytes(StandardCharsets.UTF_8))));
+    public String compressTemplate() {
+        try {
+            return new String(CompressionUtil.toBase64(CompressionUtil.toGZIP(uncompressedTemplate.getBytes(StandardCharsets.UTF_8))));
+        } catch (IOException e) {
+            return null;
+        }
     }
 
-    public String genGiveCommand(String author, int version) throws IOException {
+    public String genGiveCommand(String author, int version) {
         String compressedCode = compressTemplate();
         return String.format(templateFormat, author, getHeader().getTemplateName(), version, compressedCode);
     }
