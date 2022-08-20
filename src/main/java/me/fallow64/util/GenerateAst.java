@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
-public class        GenerateAst {
+public class GenerateAst {
 
     public static void main(String[] args) throws IOException {
         if (args.length != 1) {
@@ -18,6 +18,7 @@ public class        GenerateAst {
         defineAst(outputDir, "Expr", Arrays.asList(
                 "Assign     : Token name | Expr value",
                 "Call       : Token name | List<Expr> arguments",
+                "Get        : Expr left | Token name",
                 "Index      : Expr left | Expr index",
                 "Grouping   : Expr expression",
                 "Literal    : Object value",

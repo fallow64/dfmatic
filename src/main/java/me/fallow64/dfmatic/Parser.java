@@ -259,14 +259,17 @@ public class Parser {
     private Expr call() {
         Expr expr = primary();
 
-
-        if(match(TokenType.LEFT_PAREN)) {
-            if(expr instanceof Expr.Variable) {
+        if(expr instanceof Expr.Variable) {
+            if(match(TokenType.DOT)) {
+                do {
+                    Token name = consume(TokenType.IDENTIFIER, "Expect property name after '.'.");
+                    expr = new Expr.Get(expr, name);
+                } while (match(TokenType.DOT));
+                return expr;
+            } else if (match(TokenType.LEFT_PAREN)) {
                 List<Expr> arguments = arguments();
                 consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments.");
                 return new Expr.Call(((Expr.Variable) expr).name, arguments);
-            } else {
-                throw error(previous(), "Only identifiers can be called.");
             }
         }
         return expr;
