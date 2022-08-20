@@ -173,19 +173,37 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
         CodeValue left = resolve(expr.left);
         CodeValue right = resolve(expr.index);
         Variable randomVar = RandomUtil.randomVar();
-        if(right instanceof Text) { // we could check the exact value type of right at runtime but that just seems a bit excessive. although would be pretty cool, not the vision I think DFMatic is going for
-            currentStack.add(new SetVariable("GetDictValue", List.of(), List.of(
-                    randomVar,
-                    left,
-                    right
-            )));
-        } else {
-            currentStack.add(new SetVariable("GetListValue", List.of(), List.of(
-                    randomVar,
-                    left,
-                    right
-            )));
-        }
+//        if(right instanceof Text) { // we could check the exact value type of right at runtime but that just seems a bit excessive. although would be pretty cool, not the vision I think DFMatic is going for
+//            currentStack.add(new SetVariable("GetDictValue", List.of(), List.of(
+//                    randomVar,
+//                    left,
+//                    right
+//            )));
+//        } else {
+//            currentStack.add(new SetVariable("GetListValue", List.of(), List.of(
+//                    randomVar,
+//                    left,
+//                    right
+//            )));
+//        } TODO make this better
+        currentStack.add(
+            new IfVariable("VarIsType", false, List.of(new Tag("Number", "Variable Type", "VarIsType", "if_var")), List.of(right))
+        );
+        currentStack.add(new Bracket(BracketDirection.OPEN));
+        currentStack.add(new SetVariable("GetListValue", List.of(), List.of(
+            randomVar,
+            left,
+            right
+        )));
+        currentStack.add(new Bracket(BracketDirection.CLOSE));
+        currentStack.add(new Else());
+        currentStack.add(new Bracket(BracketDirection.OPEN));
+        currentStack.add(new SetVariable("GetDictValue", List.of(), List.of(
+            randomVar,
+            left,
+            right
+        )));
+        currentStack.add(new Bracket(BracketDirection.CLOSE));
         return randomVar;
     }
 

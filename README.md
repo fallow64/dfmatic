@@ -18,7 +18,9 @@ func sendMessage(message) {
 ```
 
 ## Features
-1. Function arguments and return values
+1. Function arguments and return values `wow = whatIsThis();`
+2. List support and indexing: `first_item = list[1];`
+3. Dictionary support and indexing: `month_num = months["January"];`
 
 ## Credit
 * WLGRXD for the idea behind code block serialization.
