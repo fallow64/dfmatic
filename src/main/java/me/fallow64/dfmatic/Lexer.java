@@ -26,6 +26,7 @@ public class Lexer {
         keywords.put("local", TokenType.LOCAL);
         keywords.put("if", TokenType.IF);
         keywords.put("else", TokenType.ELSE);
+        keywords.put("while", TokenType.WHILE);
         keywords.put("not", TokenType.NOT);
         keywords.put("loop", TokenType.LOOP);
         keywords.put("from", TokenType.FROM);

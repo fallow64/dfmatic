@@ -85,6 +85,7 @@ public class Parser {
         if(match(TokenType.STRING)) return dfStatement();
         if(match(TokenType.RETURN)) return returnStatement();
         if(match(TokenType.LOOP)) return loopStatement();
+        if(match(TokenType.WHILE)) return whileStatement();
         if(match(TokenType.BREAK)) return breakStatement();
         if(match(TokenType.CONTINUE)) return continueStatement();
 
@@ -129,6 +130,24 @@ public class Parser {
         consume(TokenType.LEFT_BRACE, "Expect '{' after loop statement.");
 
         return new Stmt.Loop(to, from, step, varType, varName, block());
+    }
+
+    private Stmt.While whileStatement() {
+        boolean inverted = match(TokenType.NOT);
+        consume(TokenType.LEFT_PAREN, "Expect '(' after while statement.");
+
+        Expr left = expression();
+        Token operator;
+        if(match(TokenType.EQUAL_EQUAL, TokenType.BANG_EQUAL, TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL)) {
+            operator = previous();
+        } else {
+            throw error(peek(), "Expected valid check condition (==, !=, >, >=, < or <=).");
+        }
+        Expr right = expression();
+
+        consume(TokenType.RIGHT_PAREN, "Expect ')' after while statement.");
+        consume(TokenType.LEFT_BRACE, "Expect '{' before while block.");
+        return new Stmt.While(left, operator, right, inverted, block());
     }
 
     private Stmt.Break breakStatement() {

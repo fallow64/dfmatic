@@ -18,6 +18,7 @@ import me.fallow64.util.RandomUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, Expr.Visitor<CodeValue> {
 
@@ -116,6 +117,25 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
     }
 
     @Override
+    public Void visitWhileStmt(Stmt.While stmt) {
+
+        String subaction = Objects.equals(stmt.operator.getLexeme(), "==") ? "=" : stmt.operator.getLexeme();
+
+        currentStack.add(new Repeat(
+            "While",
+            subaction,
+            stmt.inverted,
+            List.of(),
+            List.of(resolve(stmt.left), resolve(stmt.right))
+        ));
+
+        currentStack.add(new RepeatBracket(BracketDirection.OPEN));
+        resolve(stmt.block);
+        currentStack.add(new RepeatBracket(BracketDirection.CLOSE));
+        return null;
+    }
+
+    @Override
     public Void visitBreakStmt(Stmt.Break stmt) {
         currentStack.add(new Control("StopRepeat", List.of(), List.of()));
         return null;
@@ -129,16 +149,7 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
 
     @Override
     public Void visitIfStmt(Stmt.If stmt) {
-        TokenType tokenType = stmt.operator.getTokenType();
-
-        String action = "="; // temporary placeholder
-        switch(tokenType) { // exhaustive
-            case BANG_EQUAL -> action = "!=";
-            case GREATER_EQUAL -> action = ">=";
-            case LESS_EQUAL -> action = "<=";
-            case GREATER -> action = ">";
-            case LESS -> action = "<";
-        }
+        String action = Objects.equals(stmt.operator.getLexeme(), "==") ? "=" : stmt.operator.getLexeme();
 
         CodeValue left = resolve(stmt.left);
         CodeValue right = resolve(stmt.right);

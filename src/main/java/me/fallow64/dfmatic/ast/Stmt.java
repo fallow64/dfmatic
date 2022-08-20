@@ -12,6 +12,7 @@ public abstract class Stmt {
         R visitReturnStmt(Return stmt);
         R visitBreakStmt(Break stmt);
         R visitContinueStmt(Continue stmt);
+        R visitWhileStmt(While stmt);
         R visitLoopStmt(Loop stmt);
         R visitIfStmt(If stmt);
         R visitDFIfStmt(DFIf stmt);
@@ -67,6 +68,25 @@ public abstract class Stmt {
         }
 
         public final Token keyword;
+    }
+    public static class While extends Stmt {
+        public While(Expr left, Token operator, Expr right, boolean inverted, List<Stmt> block) {
+            this.left = left;
+            this.operator = operator;
+            this.right = right;
+            this.inverted = inverted;
+            this.block = block;
+        }
+
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitWhileStmt(this);
+        }
+
+        public final Expr left;
+        public final Token operator;
+        public final Expr right;
+        public final boolean inverted;
+        public final List<Stmt> block;
     }
     public static class Loop extends Stmt {
         public Loop(Expr to, Expr from, Expr step, TokenType varType, Token varName, List<Stmt> block) {
