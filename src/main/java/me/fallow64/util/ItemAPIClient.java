@@ -21,7 +21,9 @@ public class ItemAPIClient extends WebSocketClient {
     }
 
     @Override
-    public void onMessage(String message) {}
+    public void onMessage(String message) {
+        System.out.println(message);
+    }
 
     @Override
     public void onClose(int code, String reason, boolean remote) {}

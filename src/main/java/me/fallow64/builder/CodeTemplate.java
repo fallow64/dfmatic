@@ -4,6 +4,7 @@ import me.fallow64.builder.blocks.CodeBlock;
 import me.fallow64.builder.blocks.CodeHeader;
 import me.fallow64.util.CompressionUtil;
 import me.fallow64.util.ItemAPIClient;
+import me.fallow64.util.ItemAPIUtil;
 
 import java.io.IOException;
 import java.net.URI;
@@ -45,18 +46,6 @@ public class CodeTemplate {
     public String genGiveCommand(String author, int version) throws IOException {
         String compressedCode = compressTemplate();
         return String.format(templateFormat, author, getHeader().getTemplateName(), version, compressedCode);
-    }
-
-    public boolean sendTemplate() {
-        try {
-            String message = "{\"type\":\"template\",\"source\":\"DFMatic\",\"data\":\"{\\\"name\\\":\\\"" + header.getTemplateName() + "\\\",\\\"data\\\":\\\"" + compressTemplate() + "\\\"}\"}";
-            ItemAPIClient client = new ItemAPIClient(new URI("ws://localhost:31371/codeutilities/itemapi"), message);
-            client.connect();
-            return true;
-        } catch(Exception e) {
-            e.printStackTrace();
-            return false;
-        }
     }
 
 }

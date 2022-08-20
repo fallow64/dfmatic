@@ -11,6 +11,8 @@ repositories {
 
 dependencies {
     implementation 'org.java-websocket:Java-WebSocket:1.5.3'
+    implementation 'commons-cli:commons-cli:1.5.0'
+    implementation 'org.slf4j:slf4j-nop:1.7.25'
 }
 
 jar {
@@ -18,5 +20,8 @@ jar {
         attributes(
             'Main-Class': 'me.fallow64.dfmatic.DFMatic'
         )
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
