@@ -1,6 +1,7 @@
 package me.fallow64.dfmatic;
 
 public enum TokenType {
+    // keywords
     EVENT, FUNC,
     VAR, SAVE, GAME, LOCAL,
     IF, NOT, ELSE,

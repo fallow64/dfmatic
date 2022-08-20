@@ -70,10 +70,10 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
     @Override
     public Void visitVariableStmt(Stmt.Variable stmt) {
         String varName = stmt.name.getLexeme();
-        VariableScope variableScope = VariableScope.GAME;
+        VariableScope variableScope = VariableScope.LOCAL;
         switch(stmt.type) { // exhaustive
             case SAVE -> variableScope = VariableScope.SAVE;
-            case LOCAL -> variableScope = VariableScope.LOCAL;
+            case GAME -> variableScope = VariableScope.GAME;
         }
 
         environment.put(varName, variableScope);
@@ -158,10 +158,7 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
     @Override
     public CodeValue visitAssignExpr(Expr.Assign expr) {
         String varName = expr.name.getLexeme();
-        VariableScope scope = environment.get(varName);
-        if(environment.get(varName) == null) {
-            scope = VariableScope.GAME;
-        }
+        VariableScope scope = getScope(varName);
         currentStack.add(new SetVariable("=", List.of(), List.of(
                 new Variable(varName, scope),
                 resolve(expr.value)
@@ -220,11 +217,7 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
 
     @Override
     public CodeValue visitVariableExpr(Expr.Variable expr) {
-        VariableScope scope = environment.get(expr.name.getLexeme());
-        if(scope == null) {
-            scope = VariableScope.GAME;
-            environment.put(expr.name.getLexeme(), scope);
-        }
+        VariableScope scope = getScope(expr.name.getLexeme());
 //        String tmpName = RandomUtil.randomName(); TODO make sure i didn't fuck this up
 //        currentStack.add(new SetVariable("=", List.of(), List.of(
 //                new Variable(tmpName, VariableScope.LOCAL),
@@ -232,6 +225,15 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
 //        )));
 //        return new Variable(tmpName, VariableScope.LOCAL);
         return new Variable(expr.name.getLexeme(), scope);
+    }
+
+    public VariableScope getScope(String varName) {
+        VariableScope result = environment.get(varName);
+        if(result == null) {
+            environment.put(varName, VariableScope.LOCAL);
+            result = VariableScope.LOCAL;
+        }
+        return result;
     }
 
     public void resolve(List<Stmt> block) {
