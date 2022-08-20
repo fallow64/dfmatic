@@ -10,6 +10,7 @@ public abstract class Expr {
     public interface Visitor<R> {
         R visitAssignExpr(Assign expr);
         R visitCallExpr(Call expr);
+        R visitIndexExpr(Index expr);
         R visitGroupingExpr(Grouping expr);
         R visitLiteralExpr(Literal expr);
         R visitBinaryExpr(Binary expr);
@@ -41,6 +42,19 @@ public abstract class Expr {
 
         public final Token name;
         public final List<Expr> arguments;
+    }
+    public static class Index extends Expr {
+        public Index(Expr left, Expr index) {
+            this.left = left;
+            this.index = index;
+        }
+
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitIndexExpr(this);
+        }
+
+        public final Expr left;
+        public final Expr index;
     }
     public static class Grouping extends Expr {
         public Grouping(Expr expression) {

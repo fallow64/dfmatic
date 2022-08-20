@@ -8,7 +8,7 @@ public class Text implements CodeValue {
 
     public Text(String value) {
         // converts &a to &a
-        // yoinked directly from spigot
+        // yoinked directly from spigot TODO maybe put this color converting code elsewhere?
         char[] b = value.toCharArray();
         for (int i = 0; i < b.length - 1; i++) {
             if (b[i] == '&' && "0123456789AaBbCcDdEeFfKkLlMmNnOoRrXx".indexOf(b[i + 1]) > -1) {

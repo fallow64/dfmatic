@@ -6,11 +6,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
-public class GenerateAst {
+public class        GenerateAst {
 
     public static void main(String[] args) throws IOException {
         if (args.length != 1) {
-            System.err.println("Usage: " + args[0] + " <output directory>");
+            System.err.println("Usage: generateAst <output directory>");
             System.exit(1);
         }
         String outputDir = args[0];
@@ -18,6 +18,7 @@ public class GenerateAst {
         defineAst(outputDir, "Expr", Arrays.asList(
                 "Assign     : Token name | Expr value",
                 "Call       : Token name | List<Expr> arguments",
+                "Index      : Expr left | Expr index",
                 "Grouping   : Expr expression",
                 "Literal    : Object value",
                 "Binary     : Expr left | Token operator | Expr right",

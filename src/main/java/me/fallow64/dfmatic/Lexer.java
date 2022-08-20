@@ -50,6 +50,8 @@ public class Lexer {
             case ')' -> addToken(TokenType.RIGHT_PAREN);
             case '{' -> addToken(TokenType.LEFT_BRACE);
             case '}' -> addToken(TokenType.RIGHT_BRACE);
+            case '[' -> addToken(TokenType.LEFT_BRACKET);
+            case ']' -> addToken(TokenType.RIGHT_BRACKET);
             case ';' -> addToken(TokenType.SEMICOLON);
             case ':' -> addToken(TokenType.COLON);
             case ',' -> addToken(TokenType.COMMA);
@@ -67,10 +69,8 @@ public class Lexer {
                     addToken(TokenType.SLASH);
                 }
             }
-            case ' ', '\r', '\t' -> { break; }
-            case '\n' -> {
-                line++;
-            }
+            case ' ', '\r', '\t' -> {} // ignore whitespace
+            case '\n' -> line++;
             case '"' -> string();
             default -> {
                 if(isDigit(c)) {

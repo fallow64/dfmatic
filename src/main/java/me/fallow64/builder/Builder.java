@@ -6,8 +6,10 @@ import me.fallow64.builder.blocks.CustomBlock;
 import me.fallow64.builder.blocks.impl.*;
 import me.fallow64.builder.values.CodeValue;
 import me.fallow64.builder.values.VariableScope;
-import me.fallow64.builder.values.impl.*;
 import me.fallow64.builder.values.impl.Number;
+import me.fallow64.builder.values.impl.Tag;
+import me.fallow64.builder.values.impl.Text;
+import me.fallow64.builder.values.impl.Variable;
 import me.fallow64.dfmatic.Token;
 import me.fallow64.dfmatic.TokenType;
 import me.fallow64.dfmatic.ast.Expr;
@@ -167,6 +169,19 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
     }
 
     @Override
+    public CodeValue visitIndexExpr(Expr.Index expr) {
+        CodeValue object = resolve(expr.left);
+        CodeValue index = resolve(expr.index);
+        Variable randomVar = RandomUtil.randomVar();
+        currentStack.add(new SetVariable("GetListValue", List.of(), List.of(
+                randomVar,
+                object,
+                index
+        )));
+        return randomVar;
+    }
+
+    @Override
     public CodeValue visitCallExpr(Expr.Call expr) {
         List<CodeValue> values = resolveExprs(expr.arguments);
         List<CodeValue> arguments = new ArrayList<>();
@@ -180,8 +195,7 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
 
     @Override
     public CodeValue visitGroupingExpr(Expr.Grouping expr) {
-        CodeValue value = resolve(expr.expression);
-        return value;
+        return resolve(expr.expression);
     }
 
     @Override
@@ -190,6 +204,14 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
             return new Number(expr.value.toString());
         } else if(expr.value instanceof String) {
             return new Text((String) expr.value);
+        } else if(expr.value instanceof List<?>) {
+            // TODO clean this up somehow?
+            List<Expr> exprs = (List<Expr>)expr.value; // unreachable error
+            CodeValue tempVar = RandomUtil.randomVar();
+            ArrayList<CodeValue> values = new ArrayList<>(List.of(tempVar));
+            values.addAll(resolveExprs(exprs));
+            currentStack.add(new SetVariable("CreateList", List.of(), values));
+            return tempVar;
         }
         return null; //unreachable
     }
@@ -206,13 +228,13 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
 
     @Override
     public CodeValue visitUnaryExpr(Expr.Unary expr) {
-        String name = RandomUtil.randomName();
+        Variable randomVar = RandomUtil.randomVar();
         currentStack.add(new SetVariable("x", List.of(), List.of(
-            new Variable(RandomUtil.randomName(), VariableScope.LOCAL),
+            randomVar,
             resolve(expr.right),
             new Number("-1.0")
         )));
-        return new Variable(name, VariableScope.LOCAL);
+        return randomVar;
     }
 
     @Override

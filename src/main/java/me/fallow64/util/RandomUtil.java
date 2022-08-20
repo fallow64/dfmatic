@@ -1,5 +1,8 @@
 package me.fallow64.util;
 
+import me.fallow64.builder.values.VariableScope;
+import me.fallow64.builder.values.impl.Variable;
+
 import java.util.*;
 
 public class RandomUtil {
@@ -22,6 +25,10 @@ public class RandomUtil {
 
     public static String randomName() {
         return "$tmp" + randomUniqueInt();
+    }
+
+    public static Variable randomVar() {
+        return new Variable(randomName(), VariableScope.LOCAL);
     }
 
 }

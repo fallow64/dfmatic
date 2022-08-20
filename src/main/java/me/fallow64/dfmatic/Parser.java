@@ -7,7 +7,6 @@ import me.fallow64.dfmatic.ast.Stmt;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 // TODO make error messages more concise (look it's hard okay)
 public class Parser {
@@ -199,7 +198,7 @@ public class Parser {
     }
 
     private Expr assignment() {
-        Expr expr = term();
+        Expr expr = index();
 
         if(match(TokenType.EQUAL)) {
             Token equals = previous();
@@ -210,7 +209,17 @@ public class Parser {
                 return new Expr.Assign(name, value);
             }
 
-            error(equals, "Invalid assignment target.");
+            throw error(equals, "Invalid assignment target.");
+        }
+        return expr;
+    }
+
+    private Expr index() {
+        Expr expr = term();
+        while(match(TokenType.LEFT_BRACKET)) {
+            Expr index = expression();
+            expr = new Expr.Index(expr, index);
+            consume(TokenType.RIGHT_BRACKET, "Expect ']' after index.");
         }
         return expr;
     }
@@ -266,9 +275,13 @@ public class Parser {
     private Expr primary() {
         if(match(TokenType.NUMBER, TokenType.STRING))
             return new Expr.Literal(previous().getLiteral());
-        if(match(TokenType.IDENTIFIER))
+        else if(match(TokenType.LEFT_BRACKET)) {
+            Expr expr = new Expr.Literal(listArgs());
+            consume(TokenType.RIGHT_BRACKET, "Expect ']' after list.");
+            return expr;
+        } else if(match(TokenType.IDENTIFIER))
             return new Expr.Variable(previous());
-        if(match(TokenType.LEFT_PAREN)) {
+        else if(match(TokenType.LEFT_PAREN)) {
             Expr expr = expression();
             consume(TokenType.RIGHT_PAREN, "Expect ')' after grouping expression.");
             return new Expr.Grouping(expr);
@@ -314,6 +327,16 @@ public class Parser {
         }
 
         return tokenMap;
+    }
+
+    private List<Expr> listArgs() {
+        List<Expr> arguments = new ArrayList<>();
+        if (!check(TokenType.RIGHT_BRACKET)) {
+            do {
+                arguments.add(expression());
+            } while (match(TokenType.COMMA));
+        }
+        return arguments;
     }
 
     private Token advance() {
