@@ -170,14 +170,22 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
 
     @Override
     public CodeValue visitIndexExpr(Expr.Index expr) {
-        CodeValue object = resolve(expr.left);
-        CodeValue index = resolve(expr.index);
+        CodeValue left = resolve(expr.left);
+        CodeValue right = resolve(expr.index);
         Variable randomVar = RandomUtil.randomVar();
-        currentStack.add(new SetVariable("GetListValue", List.of(), List.of(
-                randomVar,
-                object,
-                index
-        )));
+        if(right instanceof Text) { // we could check the exact value type of right at runtime but that just seems a bit excessive. although would be pretty cool, not the vision I think DFMatic is going for
+            currentStack.add(new SetVariable("GetDictValue", List.of(), List.of(
+                    randomVar,
+                    left,
+                    right
+            )));
+        } else {
+            currentStack.add(new SetVariable("GetListValue", List.of(), List.of(
+                    randomVar,
+                    left,
+                    right
+            )));
+        }
         return randomVar;
     }
 
@@ -205,13 +213,30 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
         } else if(expr.value instanceof String) {
             return new Text((String) expr.value);
         } else if(expr.value instanceof List<?>) {
-            // TODO clean this up somehow?
-            List<Expr> exprs = (List<Expr>)expr.value; // unreachable error
+            List<Expr> exprs = (List<Expr>)expr.value; // unreachable error TODO clean this and dictionary
             CodeValue tempVar = RandomUtil.randomVar();
             ArrayList<CodeValue> values = new ArrayList<>(List.of(tempVar));
             values.addAll(resolveExprs(exprs));
             currentStack.add(new SetVariable("CreateList", List.of(), values));
             return tempVar;
+        } else if(expr.value instanceof HashMap<?,?>) {
+            // TODO clean this up (it's a mess)
+            HashMap<Token, Expr> hashMap = (HashMap<Token, Expr>) expr.value; // unreachable error
+            Variable list1 = RandomUtil.randomVar();
+            Variable list2 = RandomUtil.randomVar();
+            List<CodeValue> keys = new ArrayList<>();
+            keys.add(list1);
+            List<CodeValue> values = new ArrayList<>();
+            values.add(list2);
+            Variable result = RandomUtil.randomVar();
+            hashMap.forEach((k, v) -> {
+                keys.add(new Text((String)k.getLiteral()));
+                values.add(resolve(v));
+            });
+            currentStack.add(new SetVariable("CreateList", List.of(), keys));
+            currentStack.add(new SetVariable("CreateList", List.of(), values));
+            currentStack.add(new SetVariable("CreateDict", List.of(), List.of(result, list1, list2)));
+            return result;
         }
         return null; //unreachable
     }

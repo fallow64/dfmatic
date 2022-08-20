@@ -202,7 +202,7 @@ public class Parser {
 
         if(match(TokenType.EQUAL)) {
             Token equals = previous();
-            Expr value = assignment();
+            Expr value = index();
 
             if (expr instanceof Expr.Variable) {
                 Token name = ((Expr.Variable)expr).name;
@@ -273,15 +273,19 @@ public class Parser {
     }
 
     private Expr primary() {
-        if(match(TokenType.NUMBER, TokenType.STRING))
+        if (match(TokenType.NUMBER, TokenType.STRING)) { // literal
             return new Expr.Literal(previous().getLiteral());
-        else if(match(TokenType.LEFT_BRACKET)) {
+        }else if(match(TokenType.LEFT_BRACKET)) { // list
             Expr expr = new Expr.Literal(listArgs());
             consume(TokenType.RIGHT_BRACKET, "Expect ']' after list.");
             return expr;
-        } else if(match(TokenType.IDENTIFIER))
+        } else if(match(TokenType.IDENTIFIER)) { // variable
             return new Expr.Variable(previous());
-        else if(match(TokenType.LEFT_PAREN)) {
+        } else if(match(TokenType.LEFT_BRACE)) { // dictionary
+            Expr expr = new Expr.Literal(dictionary());
+            consume(TokenType.RIGHT_BRACE, "Expect '}' after list.");
+            return expr;
+        } else if(match(TokenType.LEFT_PAREN)) { //grouping
             Expr expr = expression();
             consume(TokenType.RIGHT_PAREN, "Expect ')' after grouping expression.");
             return new Expr.Grouping(expr);
@@ -293,6 +297,21 @@ public class Parser {
       // ================================================== //
      //                    Util                            //
     // ================================================== //
+
+    private HashMap<Token, Expr> dictionary() {
+        HashMap<Token, Expr> result = new HashMap<>();
+
+        if (!check(TokenType.RIGHT_BRACE)) {
+            do {
+                Token key = consume(TokenType.STRING, "Expect dictionary key in string.");
+                consume(TokenType.COLON, "Expect ':' between dictionary key and value.");
+                Expr value = expression();
+                result.put(key, value);
+            } while (match(TokenType.COMMA));
+        }
+
+        return result;
+    }
 
     private List<Expr> arguments() {
         List<Expr> arguments = new ArrayList<>();
