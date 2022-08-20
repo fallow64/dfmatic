@@ -28,6 +28,7 @@ public class Lexer {
         keywords.put("else", TokenType.ELSE);
         keywords.put("not", TokenType.NOT);
         keywords.put("return", TokenType.RETURN);
+        keywords.put("gamevalue", TokenType.GAMEVALUE);
     }
 
     public Lexer(String source) {

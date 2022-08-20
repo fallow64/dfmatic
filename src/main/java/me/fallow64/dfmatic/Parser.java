@@ -1,5 +1,6 @@
 package me.fallow64.dfmatic;
 
+import me.fallow64.builder.values.impl.GameValue;
 import me.fallow64.dfmatic.ast.Expr;
 import me.fallow64.dfmatic.ast.Sect;
 import me.fallow64.dfmatic.ast.Stmt;
@@ -260,17 +261,22 @@ public class Parser {
         Expr expr = primary();
 
         if(expr instanceof Expr.Variable) {
-            if(match(TokenType.DOT)) {
-                do {
-                    Token name = consume(TokenType.IDENTIFIER, "Expect property name after '.'.");
-                    expr = new Expr.Get(expr, name);
-                } while (match(TokenType.DOT));
-                return expr;
-            } else if (match(TokenType.LEFT_PAREN)) {
+            if (match(TokenType.LEFT_PAREN)) {
                 List<Expr> arguments = arguments();
                 consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments.");
-                return new Expr.Call(((Expr.Variable) expr).name, arguments);
+                expr = new Expr.Call(((Expr.Variable) expr).name, arguments);
             }
+        }
+        if(match(TokenType.DOT)) {
+            do {
+                if(match(TokenType.STRING, TokenType.IDENTIFIER)) {
+                    Token name = previous();
+                    expr = new Expr.Get(expr, name);
+                } else {
+                    throw error(peek(), "Expect property name as identifier or string after '.'.");
+                }
+            } while (match(TokenType.DOT));
+            return expr;
         }
         return expr;
     }
@@ -292,6 +298,8 @@ public class Parser {
             Expr expr = expression();
             consume(TokenType.RIGHT_PAREN, "Expect ')' after grouping expression.");
             return new Expr.Grouping(expr);
+        } else if(match(TokenType.GAMEVALUE)) {
+            return new Expr.Literal(new GameValue((String)consume(TokenType.STRING, "Expect game value type in string.").getLiteral()));
         }
 
         throw error(peek(), "Expect expression.");

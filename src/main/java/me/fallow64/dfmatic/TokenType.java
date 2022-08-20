@@ -6,6 +6,7 @@ public enum TokenType {
     VAR, SAVE, GAME, LOCAL,
     IF, NOT, ELSE,
     RETURN,
+    GAMEVALUE,
 
     LEFT_PAREN, RIGHT_PAREN,
     LEFT_BRACE, RIGHT_BRACE,

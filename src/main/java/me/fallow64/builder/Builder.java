@@ -6,10 +6,8 @@ import me.fallow64.builder.blocks.CustomBlock;
 import me.fallow64.builder.blocks.impl.*;
 import me.fallow64.builder.values.CodeValue;
 import me.fallow64.builder.values.VariableScope;
+import me.fallow64.builder.values.impl.*;
 import me.fallow64.builder.values.impl.Number;
-import me.fallow64.builder.values.impl.Tag;
-import me.fallow64.builder.values.impl.Text;
-import me.fallow64.builder.values.impl.Variable;
 import me.fallow64.dfmatic.Token;
 import me.fallow64.dfmatic.TokenType;
 import me.fallow64.dfmatic.ast.Expr;
@@ -172,10 +170,11 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
     public CodeValue visitGetExpr(Expr.Get expr) {
         CodeValue left = resolve(expr.left);
         CodeValue randomVar = RandomUtil.randomVar();
+        Text property = new Text(expr.name.getTokenType() == TokenType.STRING ? (String)expr.name.getLiteral() : expr.name.getLexeme());
         currentStack.add(new SetVariable("GetDictValue", List.of(), List.of(
                 randomVar,
                 left,
-                new Text(expr.name.getLexeme())
+                property
         )));
         return randomVar;
     }
@@ -251,6 +250,8 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
             currentStack.add(new SetVariable("CreateList", List.of(), values));
             currentStack.add(new SetVariable("CreateDict", List.of(), List.of(result, list1, list2)));
             return result;
+        } else if(expr.value instanceof GameValue) {
+            return (CodeValue) expr.value;
         }
         return null; //unreachable
     }
