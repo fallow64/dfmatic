@@ -26,7 +26,7 @@ public class DFMatic {
         }
     }
 
-    public static void run(String source) throws IOException {
+    public static void run(String source) {
         List<Token> tokens = new Lexer(source).scanTokens();
         if(hadError) return;
         List<Sect> sections = new Parser(tokens).parse();
@@ -61,20 +61,20 @@ public class DFMatic {
         }
     }
 
-    public static void error(int line, String message) {
-        report(line, "", message);
+    public static void error(int line, int column, String message) {
+        report(line, column, "", message);
     }
 
     public static void error(Token token, String message) {
         if(token.getTokenType() != TokenType.EOF) {
-            report(token.getLineNumber(), " at '" + token.getLexeme() + "'", message);
+            report(token.getLineNumber(), token.getColumnNumber(), " at '" + token.getLexeme() + "'", message);
         } else {
-            report(token.getLineNumber(), " at end", message);
+            report(token.getLineNumber(), token.getColumnNumber(), " at end", message);
         }
     }
 
-    private static void report(int line, String where, String message) {
-        System.err.println("[line " + line + "] Error" + where + ": " + message);
+    private static void report(int line, int column, String where, String message) {
+        System.err.println("[line " + line + ":" + column + "] Error" + where + ": " + message);
         hadError = true;
     }
 

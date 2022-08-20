@@ -12,6 +12,7 @@ public class Lexer {
     private int start = 0;
     private int current = 0;
     private int line = 1;
+    private int column = 0;
 
     private static final Map<String, TokenType> keywords;
 
@@ -39,7 +40,7 @@ public class Lexer {
             scanToken();
         }
 
-        tokens.add(new Token(TokenType.EOF, "", line, null));
+        tokens.add(new Token(TokenType.EOF, "", line, column, null));
         return tokens;
     }
 
@@ -70,7 +71,10 @@ public class Lexer {
                 }
             }
             case ' ', '\r', '\t' -> {} // ignore whitespace
-            case '\n' -> line++;
+            case '\n' -> {
+                line++;
+                column = 0;
+            }
             case '"' -> string();
             default -> {
                 if(isDigit(c)) {
@@ -78,7 +82,7 @@ public class Lexer {
                 } else if(isAlpha(c)) {
                     identifier();
                 } else {
-                    DFMatic.error(line, "Unexpected character.");
+                    DFMatic.error(line, column, "Unexpected character.");
                 }
             }
         }
@@ -92,7 +96,7 @@ public class Lexer {
 
         // Unterminated string.
         if (isAtEnd()) {
-            DFMatic.error(line, "Unterminated string.");
+            DFMatic.error(line, column, "Unterminated string.");
             return;
         }
 
@@ -137,11 +141,12 @@ public class Lexer {
 
     private void addToken(TokenType type, Object literal) {
         String lexeme = source.substring(start, current);
-        tokens.add(new Token(type, lexeme, line, literal));
+        tokens.add(new Token(type, lexeme, line, column, literal));
     }
 
     private char advance() {
         current++;
+        column++; // TODO make sure the column is actually accurate
         return source.charAt(current - 1);
     }
 

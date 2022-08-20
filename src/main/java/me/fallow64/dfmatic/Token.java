@@ -6,12 +6,14 @@ public class Token {
     private final TokenType tokenType;
     private final String lexeme;
     private final int lineNumber;
+    private final int columnNumber;
     private final Object literal;
 
-    public Token(TokenType tokenType, String lexeme, int lineNumber, Object literal) {
+    public Token(TokenType tokenType, String lexeme, int lineNumber, int columnNumber, Object literal) {
         this.tokenType = tokenType;
         this.lexeme = lexeme;
         this.lineNumber = lineNumber;
+        this.columnNumber = columnNumber;
         this.literal = literal;
     }
 
@@ -25,6 +27,10 @@ public class Token {
 
     public int getLineNumber() {
         return lineNumber;
+    }
+
+    public int getColumnNumber() {
+        return columnNumber;
     }
 
     public Object getLiteral() {
