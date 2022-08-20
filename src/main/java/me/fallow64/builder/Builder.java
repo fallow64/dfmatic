@@ -98,6 +98,18 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
     }
 
     @Override
+    public Void visitBreakStmt(Stmt.Break stmt) {
+        currentStack.add(new Control("StopRepeat", List.of(), List.of()));
+        return null;
+    }
+
+    @Override
+    public Void visitContinueStmt(Stmt.Continue stmt) {
+        currentStack.add(new Control("Skip", List.of(), List.of()));
+        return null;
+    }
+
+    @Override
     public Void visitIfStmt(Stmt.If stmt) {
         TokenType tokenType = stmt.operator.getTokenType();
 

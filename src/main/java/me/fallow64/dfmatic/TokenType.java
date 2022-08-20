@@ -5,6 +5,7 @@ public enum TokenType {
     EVENT, FUNC,
     VAR, SAVE, GAME, LOCAL,
     IF, NOT, ELSE,
+    BREAK, CONTINUE,
     RETURN,
     GAMEVALUE,
 

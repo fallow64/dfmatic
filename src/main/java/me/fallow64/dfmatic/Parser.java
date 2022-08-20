@@ -84,8 +84,22 @@ public class Parser {
         if(match(TokenType.IF)) return ifStatement();
         if(match(TokenType.STRING)) return dfStatement();
         if(match(TokenType.RETURN)) return returnStatement();
+        if(match(TokenType.BREAK)) return breakStatement();
+        if(match(TokenType.CONTINUE)) return continueStatement();
 
         return expressionStatement();
+    }
+
+    private Stmt.Break breakStatement() {
+        Stmt.Break stmt = new Stmt.Break(previous());
+        consume(TokenType.SEMICOLON, "Expect ';' after break.");
+        return stmt;
+    }
+
+    private Stmt.Continue continueStatement() {
+        Stmt.Continue stmt = new Stmt.Continue(previous());
+        consume(TokenType.SEMICOLON, "Expect ';' after continue.");
+        return stmt;
     }
 
     private Stmt.Variable varStatement() {

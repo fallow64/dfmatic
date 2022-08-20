@@ -10,6 +10,8 @@ public abstract class Stmt {
     public interface Visitor<R> {
         R visitVariableStmt(Variable stmt);
         R visitReturnStmt(Return stmt);
+        R visitBreakStmt(Break stmt);
+        R visitContinueStmt(Continue stmt);
         R visitIfStmt(If stmt);
         R visitDFIfStmt(DFIf stmt);
         R visitDFStmt(DF stmt);
@@ -42,6 +44,28 @@ public abstract class Stmt {
 
         public final Token keyword;
         public final Expr value;
+    }
+    public static class Break extends Stmt {
+        public Break(Token keyword) {
+            this.keyword = keyword;
+        }
+
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitBreakStmt(this);
+        }
+
+        public final Token keyword;
+    }
+    public static class Continue extends Stmt {
+        public Continue(Token keyword) {
+            this.keyword = keyword;
+        }
+
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitContinueStmt(this);
+        }
+
+        public final Token keyword;
     }
     public static class If extends Stmt {
         public If(Expr left, Token operator, Expr right, boolean inverted, List<Stmt> ifBranch, List<Stmt> elseBranch) {

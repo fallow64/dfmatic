@@ -35,6 +35,8 @@ public class GenerateAst {
         defineAst(outputDir, "Stmt", Arrays.asList(
                 "Variable   : Token name | TokenType type | Expr expression",
                 "Return     : Token keyword | Expr value",
+                "Break      : Token keyword",
+                "Continue   : Token keyword",
                 "If         : Expr left | Token operator | Expr right | boolean inverted | List<Stmt> ifBranch | List<Stmt> elseBranch",
                 "DFIf       : Token block | Token action | List<Expr> args | boolean inverted | List<Stmt> ifBranch | List<Stmt> elseBranch",
                 "DF         : Token blockName | Token actionName | HashMap<Token,Token> tags | List<Expr> arguments",
