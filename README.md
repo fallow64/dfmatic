@@ -21,23 +21,31 @@ func sendMessage(message) {
 1. Function arguments and return values
    ```
    var result: save = whatThisIs();
-   
-   func whatThisIs() {
-      return "Pretty cool!";
-   }
+   func whatThisIs() { return "Pretty cool!"; }
    ```
-2. List support and indexing: `first_item = list[1];`
+2. List support and indexing:
    ```
    primes = [2, 3, 5, 7, 11, 13, 17, 19, 23];
+   seventeen = primes[7]; // 17
    ```
 3. Dictionary support and properties:
    ```
    months = {"january": 1, "febuary": 2, "march": 3, "april": 4 ... };
    month_num = months.january; // 1
    ```
+
+## To-do
+
+- [ ] Processes and Start Process
+- [ ] Select Player
+- [ ] Easier Action and If declarations
+- [ ] Command line arguments for Item API and the REPL.
+- [ ] Locations and Vectors (not totally sure about this)
+- [ ] Release (and maybe publish?) syntax highlight VSCode plugin
+- [ ] Release v1.0 to the public
    
 ## How To Use
-1. Download the JAR from [the releases site](https://github.com/fallow64/dfmatic/releases)
+1. Download the JAR from [the releases section](https://github.com/fallow64/dfmatic/releases).
 2. Run the JAR with the file path of the source code. `java -jar dfmatic.jar mySourceCode.dfm`
 
 ## Credit
