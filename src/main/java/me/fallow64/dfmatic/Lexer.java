@@ -168,7 +168,7 @@ public class Lexer {
 
     private char advance() {
         current++;
-        column++; // TODO make sure the column is actually accurate
+        column++;
         return source.charAt(current - 1);
     }
 

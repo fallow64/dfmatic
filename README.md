@@ -39,6 +39,7 @@ func sendMessage(message) {
 - [ ] Processes and Start Process
 - [ ] Select Player
 - [ ] Easier Action and If declarations
+- [ ] Better integration with Item API.
 - [ ] Command line arguments for Item API and the REPL.
 - [ ] Locations and Vectors (not totally sure about this)
 - [ ] Release (and maybe publish?) syntax highlight VSCode plugin

@@ -1,15 +1,17 @@
 package me.fallow64.dfmatic;
 
-import me.fallow64.builder.Builder;
-import me.fallow64.builder.CodeTemplate;
+import me.fallow64.dfmatic.builder.Builder;
+import me.fallow64.dfmatic.builder.CodeTemplate;
 import me.fallow64.dfmatic.ast.Sect;
-import me.fallow64.util.ItemAPIUtil;
+import me.fallow64.dfmatic.util.ItemAPIUtil;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class DFMatic {
@@ -19,8 +21,19 @@ public class DFMatic {
     public static final String version = "0.1";
 
     public static void main(String[] args) throws IOException {
-        if(args.length >= 1) {
-            runFile(args[0]);
+        List<String> arguments = new ArrayList<>(List.of(args));
+
+        // scuffed cli arg parser
+        for(String argument : arguments) {
+            if(Objects.equals(argument, "c") || Objects.equals(argument, "codeutils")) {
+                arguments.remove(argument);
+                codeUtils = true;
+                break;
+            }
+        }
+
+        if(arguments.size() == 1) {
+            runFile(arguments.get(0));
         } else {
             runRepl();
         }

@@ -1,6 +1,6 @@
 package me.fallow64.dfmatic;
 
-import me.fallow64.builder.values.impl.GameValue;
+import me.fallow64.dfmatic.builder.values.impl.GameValue;
 import me.fallow64.dfmatic.ast.Expr;
 import me.fallow64.dfmatic.ast.Sect;
 import me.fallow64.dfmatic.ast.Stmt;
@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-// TODO make error messages more concise (look it's hard okay)
 public class Parser {
     private static class ParseError extends RuntimeException {}
 
