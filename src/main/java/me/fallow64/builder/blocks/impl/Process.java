@@ -20,7 +20,11 @@ public class Process extends DataBlock implements CodeHeader {
 
     @Override
     public String getTemplateName() {
-        return "Process » " + getData();
+        return "Process \u00BB " + getData();
     }
 
+    @Override
+    public String getTemplateNameWithColors() {
+        return "\u00A7a\u00A7lProcess \u00A73\u00BB \u00A7a" + getData();
+    }
 }

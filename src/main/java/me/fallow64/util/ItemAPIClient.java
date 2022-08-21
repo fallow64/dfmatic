@@ -25,21 +25,22 @@ public class ItemAPIClient extends WebSocketClient {
     }
 
     public void sendTemplates(List<CodeTemplate> templates) {
+        // TODO is there a way to send all of these in one single message?
         for(CodeTemplate template : templates) {
-            String name = template.getHeader().getTemplateName();
+            String name = template.getHeader().getTemplateNameWithColors();
             String compressedTemplate = template.compressTemplate();
             send("{\"type\":\"template\",\"source\":\"DFMatic\",\"data\":\"{\\\"name\\\":\\\"" + name + "\\\",\\\"data\\\":\\\"" + compressedTemplate + "\\\"}\"}");
-            try {Thread.sleep(100); } catch(Exception ignored) {}
+            try {Thread.sleep(50); } catch(Exception ignored) {}
         }
     }
 
     @Override
     public void onMessage(String message) {
         if(message.startsWith("{\"status\":\"success\"")) {
-            System.out.println("Sent to CodeUtils successfully!");
+            System.out.println("Sent to Item API successfully!");
         }
         if(message.startsWith("{\"status\":\"error\",\"error\":")) {
-            System.err.println("code utils: " + message);
+            System.err.println("item api: " + message);
         }
         if(quitOnSend) System.exit(0);
     }

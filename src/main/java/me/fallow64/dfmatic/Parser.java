@@ -281,16 +281,16 @@ public class Parser {
     private Expr assignment() {
         Expr expr = index();
 
-        if(match(TokenType.EQUAL)) {
+        while(match(TokenType.EQUAL)) {
             Token equals = previous();
-            Expr value = index();
+            Expr value = expression();
 
             if (expr instanceof Expr.Variable) {
                 Token name = ((Expr.Variable)expr).name;
-                return new Expr.Assign(name, value);
+                expr = new Expr.Assign(name, value);
+            } else {
+                throw error(equals, "Invalid assignment target.");
             }
-
-            throw error(equals, "Invalid assignment target.");
         }
         return expr;
     }
@@ -319,7 +319,7 @@ public class Parser {
     private Expr factor() {
         Expr expr = unary();
 
-        while(match(TokenType.STAR, TokenType.SLASH)) {
+        while(match(TokenType.STAR, TokenType.SLASH, TokenType.PERCENT)) {
             Token operator = previous();
             Expr right = unary();
             expr = new Expr.Binary(expr, operator, right);

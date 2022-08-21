@@ -18,6 +18,11 @@ public class EntityEvent extends StandardBlock implements CodeHeader {
 
     @Override
     public String getTemplateName() {
-        return "Event » " + getAction();
+        return "Event \u00BB " + getAction();
+    }
+
+    @Override
+    public String getTemplateNameWithColors() {
+        return "\u00A7e\u00A7lEvent \u00A76\u00BB \u00A7e" + getAction() + " Event";
     }
 }

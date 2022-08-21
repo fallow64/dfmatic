@@ -20,7 +20,12 @@ public class Function extends DataBlock implements CodeHeader {
 
     @Override
     public String getTemplateName() {
-        return "Function » " + getData();
+        return "Function \u00BB " + getData();
+    }
+
+    @Override
+    public String getTemplateNameWithColors() {
+        return "\u00A7b\u00A7lFunction \u00A73\u00BB \u00A7b" + getData();
     }
 
 }

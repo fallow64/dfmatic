@@ -15,8 +15,8 @@ public enum TokenType {
 
     SEMICOLON, COLON, COMMA, DOT,
 
+    STAR, SLASH, PERCENT,
     PLUS, MINUS,
-    STAR, SLASH,
 
     BANG, BANG_EQUAL,
     EQUAL, EQUAL_EQUAL,

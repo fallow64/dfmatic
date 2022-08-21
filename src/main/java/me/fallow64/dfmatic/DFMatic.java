@@ -80,7 +80,7 @@ public class DFMatic {
 
     private static void sendTemplates(List<CodeTemplate> templates, boolean quitOnSend) {
         if(codeUtils) {
-            System.out.println("attempting to send to codeutils...");
+            System.out.println("attempting to send to item api...");
             ItemAPIUtil.sendTemplates(templates, quitOnSend);
         } else {
             System.out.println("/give commands:");

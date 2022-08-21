@@ -18,9 +18,27 @@ func sendMessage(message) {
 ```
 
 ## Features
-1. Function arguments and return values `wow = whatIsThis();`
+1. Function arguments and return values
+   ```
+   var result: save = whatThisIs();
+   
+   func whatThisIs() {
+      return "Pretty cool!";
+   }
+   ```
 2. List support and indexing: `first_item = list[1];`
-3. Dictionary support and indexing: `month_num = months["January"];`
+   ```
+   primes = [2, 3, 5, 7, 11, 13, 17, 19, 23];
+   ```
+3. Dictionary support and properties:
+   ```
+   months = {"january": 1, "febuary": 2, "march": 3, "april": 4 ... };
+   month_num = months.january; // 1
+   ```
+   
+## How To Use
+1. Download the JAR from [the releases site](https://github.com/fallow64/dfmatic/releases)
+2. Run the JAR with the file path of the source code. `java -jar dfmatic.jar mySourceCode.dfm`
 
 ## Credit
 * WLGRXD for the idea behind code block serialization.

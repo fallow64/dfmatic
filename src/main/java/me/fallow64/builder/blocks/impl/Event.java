@@ -2,10 +2,8 @@ package me.fallow64.builder.blocks.impl;
 
 import me.fallow64.builder.blocks.CodeHeader;
 import me.fallow64.builder.blocks.StandardBlock;
-import me.fallow64.builder.values.CodeValue;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class Event extends StandardBlock implements CodeHeader {
 
@@ -20,6 +18,12 @@ public class Event extends StandardBlock implements CodeHeader {
 
     @Override
     public String getTemplateName() {
-        return "Event » " + getAction();
+        return "Event \u00BB " + getAction();
     }
+
+    @Override
+    public String getTemplateNameWithColors() {
+        return "\u00A7e\u00A7lEvent \u00BB \u00A7e" + getAction() + " Event";
+    }
+
 }
