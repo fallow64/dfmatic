@@ -19,11 +19,7 @@ public class DFMatic {
     public static final String version = "0.1";
 
     public static void main(String[] args) throws IOException {
-        List<String> listArgs = List.of(args);
-        if(listArgs.contains("--give")) {
-            codeUtils = false;
-        }
-        if(args.length == 1) {
+        if(args.length >= 1) {
             runFile(args[0]);
         } else {
             runRepl();
@@ -42,7 +38,7 @@ public class DFMatic {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
 
         List<CodeTemplate> templates = run(new String(bytes, Charset.defaultCharset()));
-        if(templates != null) sendTemplates(templates);
+        if(templates != null) sendTemplates(templates, true);
 
         // Indicate an error in the exit code.
         if (hadError) System.exit(65);
@@ -59,7 +55,7 @@ public class DFMatic {
             source = "event \"Join\" {" + source + "}";
 
             List<CodeTemplate> templates = run(source);
-            if(templates != null) sendTemplates(templates);
+            if(templates != null) sendTemplates(templates, false);
             hadError = false;
         }
     }
@@ -82,15 +78,16 @@ public class DFMatic {
         hadError = true;
     }
 
-    private static void sendTemplates(List<CodeTemplate> templates) {
+    private static void sendTemplates(List<CodeTemplate> templates, boolean quitOnSend) {
         if(codeUtils) {
             System.out.println("attempting to send to codeutils...");
-            ItemAPIUtil.sendTemplates(templates);
+            ItemAPIUtil.sendTemplates(templates, quitOnSend);
         } else {
             System.out.println("/give commands:");
             for (CodeTemplate template : templates) {
                 System.out.println(template.genGiveCommand("DFMatic", 1));
             }
+            if(quitOnSend) System.exit(0);
         }
     }
 

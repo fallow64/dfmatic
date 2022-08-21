@@ -27,7 +27,7 @@ public class CodeTemplate {
 
         this.uncompressedTemplate = "{\"blocks\": [" + String.join(",", blockStrings) + "]}";
     }
-// TODO this code could be cleaner
+
     public CodeHeader getHeader() {
         return header;
     }

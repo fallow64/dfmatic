@@ -11,10 +11,12 @@ import java.util.List;
 public class ItemAPIClient extends WebSocketClient {
 
     private final List<CodeTemplate> templates;
+    private final boolean quitOnSend;
 
-    public ItemAPIClient(URI serverUri, List<CodeTemplate> templates) {
+    public ItemAPIClient(URI serverUri, List<CodeTemplate> templates, boolean quitOnSend) {
         super(serverUri);
         this.templates = templates;
+        this.quitOnSend = quitOnSend;
     }
 
     @Override
@@ -39,6 +41,7 @@ public class ItemAPIClient extends WebSocketClient {
         if(message.startsWith("{\"status\":\"error\",\"error\":")) {
             System.err.println("code utils: " + message);
         }
+        if(quitOnSend) System.exit(0);
     }
 
     @Override
