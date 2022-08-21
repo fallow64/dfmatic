@@ -29,6 +29,7 @@ public class Lexer {
         keywords.put("while", TokenType.WHILE);
         keywords.put("not", TokenType.NOT);
         keywords.put("loop", TokenType.LOOP);
+        keywords.put("in", TokenType.IN);
         keywords.put("from", TokenType.FROM);
         keywords.put("to", TokenType.TO);
         keywords.put("step", TokenType.STEP);
@@ -75,6 +76,17 @@ public class Lexer {
             case '/' -> {
                 if(match('/')) {
                     while(peek() != '\n' && !isAtEnd()) advance();
+                } else if(match('*')) {
+                    while(true) {
+                        if(isAtEnd()) DFMatic.error(line, column, "Unterminated block comment.");
+                        char next = advance();
+                        if(next == '\n') {
+                            line++;
+                        } else if(next == '*' && peek() == '/') {
+                            advance(); //consume the *
+                            return;
+                        }
+                    }
                 } else {
                     addToken(TokenType.SLASH);
                 }

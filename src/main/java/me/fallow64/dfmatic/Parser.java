@@ -92,7 +92,7 @@ public class Parser {
         return expressionStatement();
     }
 
-    private Stmt.Loop loopStatement() {
+    private Stmt loopStatement() { // is this code a mess? kinda
         Expr to = null;
         Expr from = new Expr.Literal(1.0);
         Expr step = new Expr.Literal(1.0);
@@ -104,6 +104,12 @@ public class Parser {
                 varType = previous().getTokenType();
                 varName = consume(TokenType.IDENTIFIER, "Expect variable name."); // loop( type varName
 
+                if(match(TokenType.IN)) {
+                    Expr list = expression();
+                    consume(TokenType.RIGHT_PAREN, "Expect ')' after loop parameters.");
+                    consume(TokenType.LEFT_BRACE, "Expect '{' before block.");
+                    return new Stmt.LoopFor(varName, varType, list, block());
+                }
                 if (match(TokenType.FROM)) { // loop( type varName from EXPR to EXPR
                     from = expression();
                     consume(TokenType.TO, "Expect \"to\" after \"from\" expression.");

@@ -39,6 +39,7 @@ public class GenerateAst {
                 "Continue   : Token keyword",
                 "While      : Expr left | Token operator | Expr right | boolean inverted | List<Stmt> block",
                 "Loop       : Expr to | Expr from | Expr step | TokenType varType | Token varName | List<Stmt> block", // shamelessly stolen syntax from spark
+                "LoopFor    : Token varName | TokenType varType | Expr list | List<Stmt> branch",
                 "If         : Expr left | Token operator | Expr right | boolean inverted | List<Stmt> ifBranch | List<Stmt> elseBranch",
                 "DFIf       : Token block | Token action | List<Expr> args | boolean inverted | List<Stmt> ifBranch | List<Stmt> elseBranch",
                 "DF         : Token blockName | Token actionName | HashMap<Token,Token> tags | List<Expr> arguments",

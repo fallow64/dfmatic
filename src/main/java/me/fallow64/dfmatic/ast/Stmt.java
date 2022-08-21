@@ -14,6 +14,7 @@ public abstract class Stmt {
         R visitContinueStmt(Continue stmt);
         R visitWhileStmt(While stmt);
         R visitLoopStmt(Loop stmt);
+        R visitLoopForStmt(LoopFor stmt);
         R visitIfStmt(If stmt);
         R visitDFIfStmt(DFIf stmt);
         R visitDFStmt(DF stmt);
@@ -108,6 +109,23 @@ public abstract class Stmt {
         public final TokenType varType;
         public final Token varName;
         public final List<Stmt> block;
+    }
+    public static class LoopFor extends Stmt {
+        public LoopFor(Token varName, TokenType varType, Expr list, List<Stmt> branch) {
+            this.varName = varName;
+            this.varType = varType;
+            this.list = list;
+            this.branch = branch;
+        }
+
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitLoopForStmt(this);
+        }
+
+        public final Token varName;
+        public final TokenType varType;
+        public final Expr list;
+        public final List<Stmt> branch;
     }
     public static class If extends Stmt {
         public If(Expr left, Token operator, Expr right, boolean inverted, List<Stmt> ifBranch, List<Stmt> elseBranch) {

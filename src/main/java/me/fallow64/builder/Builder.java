@@ -85,6 +85,19 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
     }
 
     @Override
+    public Void visitLoopForStmt(Stmt.LoopFor stmt) {
+        VariableScope scope = toScope(stmt.varType);
+        String varName = stmt.varName.getLexeme();
+
+        Variable iterator = new Variable(varName, scope);
+        currentStack.add(new Repeat("ForEach", List.of(new Tag("True", "Allow List Changes", "ForEach", "repeat")), List.of(iterator, resolve(stmt.list))));
+        currentStack.add(new RepeatBracket(BracketDirection.OPEN));
+        resolve(stmt.branch);
+        currentStack.add(new RepeatBracket(BracketDirection.CLOSE));
+        return null;
+    }
+
+    @Override
     public Void visitLoopStmt(Stmt.Loop stmt) {
         if(stmt.varName != null) {
             List<CodeValue> arguments = new ArrayList<>();
@@ -157,13 +170,13 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
         currentStack.add(new IfVariable(action, stmt.inverted, List.of(), List.of(left, right))); // TODO values
         currentStack.add(new Bracket(BracketDirection.OPEN));
         resolve(stmt.ifBranch);
+        currentStack.add(new Bracket(BracketDirection.CLOSE));
         if(stmt.elseBranch != null) {
             currentStack.add(new Else());
             currentStack.add(new Bracket(BracketDirection.OPEN));
             resolve(stmt.elseBranch);
             currentStack.add(new Bracket(BracketDirection.CLOSE));
         }
-        currentStack.add(new Bracket(BracketDirection.CLOSE));
         return null;
     }
 
