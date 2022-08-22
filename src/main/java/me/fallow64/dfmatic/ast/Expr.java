@@ -1,10 +1,8 @@
 package me.fallow64.dfmatic.ast;
 
 import me.fallow64.dfmatic.Token;
-import me.fallow64.dfmatic.TokenType;
 
 import java.util.List;
-import java.util.HashMap;
 
 public abstract class Expr {
     public interface Visitor<R> {
@@ -19,8 +17,8 @@ public abstract class Expr {
         R visitVariableExpr(Variable expr);
     }
     public static class Assign extends Expr {
-        public Assign(Token name, Expr value) {
-            this.name = name;
+        public Assign(Expr left, Expr value) {
+            this.left = left;
             this.value = value;
         }
 
@@ -28,7 +26,7 @@ public abstract class Expr {
             return visitor.visitAssignExpr(this);
         }
 
-        public final Token name;
+        public final Expr left;
         public final Expr value;
     }
     public static class Call extends Expr {

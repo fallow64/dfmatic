@@ -283,15 +283,8 @@ public class Parser {
         Expr expr = index();
 
         while(match(TokenType.EQUAL)) {
-            Token equals = previous();
             Expr value = expression();
-
-            if (expr instanceof Expr.Variable) {
-                Token name = ((Expr.Variable)expr).name;
-                expr = new Expr.Assign(name, value);
-            } else {
-                throw error(equals, "Invalid assignment target.");
-            }
+            expr = new Expr.Assign(expr, value);
         }
         return expr;
     }

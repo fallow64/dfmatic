@@ -2,9 +2,13 @@
 A transpiled programming language for the [Diamondfire](https://mcdiamondfire.com) Minecraft server.
 
 ## Why?
-<b>Problem</b>: DF code is inherently hard to read, and hard to read code eventually turns into unmaintainable code. I often find myself starting at DF code I wrote a week ago and not being able to understand it without going block by block, which you can rule out if made something more than a few code spaces. While this problem exists within conventional programming, the effect is nowhere near as persistent because of how readable standard code is.
+<b>Problem</b>: DF code is inherently hard to read, and hard to read code eventually turns into unmaintainable code. I
+often find myself starting at DF code I wrote a week ago and not being able to understand it without going block by
+block, which you can rule out if made something more than a few code spaces. While this problem exists within
+conventional programming, the effect is nowhere near as persistent because of how readable standard code is.
 
-DFMatic proposes a solution to this with a language specifically designed to compile down to code blocks while having nice, readable, text source code.
+DFMatic proposes a solution to this with a language specifically designed to compile down to code
+blocks while having nice, readable, text source code.
 
 ## Example Source Code
 ```
@@ -33,6 +37,21 @@ func sendMessage(message) {
    months = {"january": 1, "febuary": 2, "march": 3, "april": 4 ... };
    month_num = months.january; // 1
    ```
+   
+## Cons
+
+1. The language is very loosely defined, which lets you trip up a lot. For example: this is a valid line:
+   ```
+   functionCall() = 5;
+   ```
+   This code generates, and represents changing the return value (`$rv`). Here are some more examples of this weirdness
+   that will all compile fine (if you find any other weird things tell me about it and I'll add them here):
+   ```
+   1 + 1 = 3; a = b = c = b = a; 1;
+   ```
+2. The resulting code will be longer and harder to read than hand-placing DF blocks. If requesting support or showing
+   others your code, it would probably look pretty weird.
+3. It's not finished yet, so there could be breaking changes at any moment.
 
 ## To-do
 

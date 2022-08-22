@@ -213,14 +213,28 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
     }
 
     @Override
-    public CodeValue visitAssignExpr(Expr.Assign expr) {
-        String varName = expr.name.lexeme();
-        VariableScope scope = getScope(varName);
-        currentStack.add(new SetVariable("=", List.of(), List.of(
-                new Variable(varName, scope),
-                resolve(expr.value)
-        )));
-        return new Variable(varName, scope);
+    public CodeValue visitAssignExpr(Expr.Assign expr) { // TODO solidify this more (because functionCall() = 1; is valid)
+        CodeValue result = resolve(expr.value);
+        if(expr.left instanceof Expr.Get) { // TODO implement deeper levels (e.g a.b.c = 5) for dictionaries and lists
+            Text property = new Text(((Expr.Get) expr.left).name.tokenType() == TokenType.STRING ? (String)((Expr.Get) expr.left).name.literal() : ((Expr.Get) expr.left).name.lexeme());
+            currentStack.add(new SetVariable("SetDictValue", List.of(), List.of(
+                    resolve(((Expr.Get) expr.left).left),
+                    property,
+                    result
+            )));
+        } else if(expr.left instanceof Expr.Index) {
+            currentStack.add(new SetVariable("SetListValue", List.of(), List.of(
+                    resolve(((Expr.Index) expr.left).left),
+                    resolve(((Expr.Index) expr.left).index),
+                    result
+            )));
+        } else { //try our best to make it work
+            currentStack.add(new SetVariable("=", List.of(), List.of(
+                    resolve(expr.left),
+                    result
+            )));
+        }
+        return result;
     }
 
     @Override
@@ -313,8 +327,10 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
     @Override
     public CodeValue visitBinaryExpr(Expr.Binary expr) {
         CodeValue left = resolve(expr.left);
-        String leftString = left instanceof Number ? ((Number) left).value() : "%var(" + ((Variable) left).name() + ")";
         CodeValue right = resolve(expr.right);
+        assert (left instanceof Number || left instanceof Variable) &&
+                (right instanceof Number ||  right instanceof Variable): "Expect binary expression to be either Number or Variable value.";
+        String leftString = left instanceof Number ? ((Number) left).value() : "%var(" + ((Variable) left).name() + ")";
         String rightString = right instanceof Number ? ((Number) right).value() : "%var(" + ((Variable) right).name() + ")";
         String result = "%math(" + leftString + " " + expr.operator.lexeme() + " " + rightString + ")";
         return new Number(result);
