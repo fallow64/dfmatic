@@ -44,18 +44,18 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
 
     @Override
     public CodeTemplate visitEventSect(Sect.Event sect) {
-        currentStack.add(new Event((String) sect.name.getLiteral()));
+        currentStack.add(new Event((String) sect.name.literal()));
         resolve(sect.block);
         return new CodeTemplate(currentStack);
     }
 
     @Override
     public CodeTemplate visitFunctionSect(Sect.Function sect) {
-        currentStack.add(new Function(sect.name.getLexeme(), List.of(new Tag("False", "Is Hidden", "dynamic", "func"))));
+        currentStack.add(new Function(sect.name.lexeme(), List.of(new Tag("False", "Is Hidden", "dynamic", "func"))));
 
         for(int i = 1; i < sect.parameters.size() + 1; i++) {
             Token parameter = sect.parameters.get(i - 1);
-            String name = parameter.getLexeme();
+            String name = parameter.lexeme();
             environment.put(name, VariableScope.LOCAL);
             currentStack.add(new SetVariable("GetListValue", List.of(), List.of(
                     new Variable(name, VariableScope.LOCAL),
@@ -70,7 +70,7 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
 
     @Override
     public Void visitVariableStmt(Stmt.Variable stmt) {
-        String varName = stmt.name.getLexeme();
+        String varName = stmt.name.lexeme();
         VariableScope variableScope = toScope(stmt.type);
 
         environment.put(varName, variableScope);
@@ -87,7 +87,7 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
     @Override
     public Void visitLoopForStmt(Stmt.LoopFor stmt) {
         VariableScope scope = toScope(stmt.varType);
-        String varName = stmt.varName.getLexeme();
+        String varName = stmt.varName.lexeme();
 
         Variable iterator = new Variable(varName, scope);
         currentStack.add(new Repeat("ForEach", List.of(new Tag("True", "Allow List Changes", "ForEach", "repeat")), List.of(iterator, resolve(stmt.list))));
@@ -101,11 +101,11 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
     public Void visitLoopStmt(Stmt.Loop stmt) {
         if(stmt.varName != null) {
             List<CodeValue> arguments = new ArrayList<>();
-            arguments.add(new Variable(stmt.varName.getLexeme(), toScope(stmt.varType))); //iterator variable
+            arguments.add(new Variable(stmt.varName.lexeme(), toScope(stmt.varType))); //iterator variable
             arguments.add(resolve(stmt.from));
             arguments.add(resolve(stmt.to));
             arguments.add(resolve(stmt.step));
-            environment.put(stmt.varName.getLexeme(), toScope(stmt.varType));
+            environment.put(stmt.varName.lexeme(), toScope(stmt.varType));
 
             currentStack.add(new Repeat("Range", List.of(), arguments));
         } else if(stmt.to != null) {
@@ -132,7 +132,7 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
     @Override
     public Void visitWhileStmt(Stmt.While stmt) {
 
-        String subaction = Objects.equals(stmt.operator.getLexeme(), "==") ? "=" : stmt.operator.getLexeme();
+        String subaction = Objects.equals(stmt.operator.lexeme(), "==") ? "=" : stmt.operator.lexeme();
 
         currentStack.add(new Repeat(
             "While",
@@ -162,7 +162,7 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
 
     @Override
     public Void visitIfStmt(Stmt.If stmt) {
-        String action = Objects.equals(stmt.operator.getLexeme(), "==") ? "=" : stmt.operator.getLexeme();
+        String action = Objects.equals(stmt.operator.lexeme(), "==") ? "=" : stmt.operator.lexeme();
 
         CodeValue left = resolve(stmt.left);
         CodeValue right = resolve(stmt.right);
@@ -182,8 +182,8 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
 
     @Override
     public Void visitDFIfStmt(Stmt.DFIf stmt) {
-        String blockName = (String)stmt.block.getLiteral();
-        String actionName = (String)stmt.action.getLiteral();
+        String blockName = (String)stmt.block.literal();
+        String actionName = (String)stmt.action.literal();
         currentStack.add(new CustomBlock(blockName, actionName, List.of(), resolveExprs(stmt.args)));
         currentStack.add(new Bracket(BracketDirection.OPEN));
         resolve(stmt.ifBranch);
@@ -199,8 +199,8 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
 
     @Override
     public Void visitDFStmt(Stmt.DF stmt) {
-        String blockName = (String)stmt.blockName.getLiteral();
-        String actionName = (String)stmt.actionName.getLiteral();
+        String blockName = (String)stmt.blockName.literal();
+        String actionName = (String)stmt.actionName.literal();
         currentStack.add(new CustomBlock(blockName, actionName,
                 Tag.fromHashmapFromToken(stmt.tags, actionName, blockName), resolveExprs(stmt.arguments)));
         return null;
@@ -214,7 +214,7 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
 
     @Override
     public CodeValue visitAssignExpr(Expr.Assign expr) {
-        String varName = expr.name.getLexeme();
+        String varName = expr.name.lexeme();
         VariableScope scope = getScope(varName);
         currentStack.add(new SetVariable("=", List.of(), List.of(
                 new Variable(varName, scope),
@@ -227,7 +227,7 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
     public CodeValue visitGetExpr(Expr.Get expr) {
         CodeValue left = resolve(expr.left);
         CodeValue randomVar = RandomUtil.randomVar();
-        Text property = new Text(expr.name.getTokenType() == TokenType.STRING ? (String)expr.name.getLiteral() : expr.name.getLexeme());
+        Text property = new Text(expr.name.tokenType() == TokenType.STRING ? (String)expr.name.literal() : expr.name.lexeme());
         currentStack.add(new SetVariable("GetDictValue", List.of(), List.of(
                 randomVar,
                 left,
@@ -265,7 +265,7 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
         arguments.addAll(values);
 
         currentStack.add(new SetVariable("CreateList", List.of(), arguments));
-        currentStack.add(new CallFunction(expr.name.getLexeme()));
+        currentStack.add(new CallFunction(expr.name.lexeme()));
         return new Variable("$rv", VariableScope.LOCAL);
     }
 
@@ -276,10 +276,10 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
 
     @Override
     public CodeValue visitLiteralExpr(Expr.Literal expr) {
-        if(expr.value instanceof Double) {
-            return new Number(expr.value.toString());
-        } else if(expr.value instanceof String) {
-            return Text.fromColorCode((String) expr.value);
+        if(expr.value instanceof Number) {
+            return (Number)expr.value;
+        } else if(expr.value instanceof Text) {
+            return (Text)expr.value;
         } else if(expr.value instanceof List<?>) {
             List<Expr> exprs = (List<Expr>)expr.value; // unreachable error TODO clean this and dictionary
             CodeValue tempVar = RandomUtil.randomVar();
@@ -297,7 +297,7 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
             values.add(list2);
             Variable result = RandomUtil.randomVar();
             hashMap.forEach((k, v) -> {
-                keys.add(new Text((String)k.getLiteral()));
+                keys.add(new Text((String)k.literal()));
                 values.add(resolve(v));
             });
             currentStack.add(new SetVariable("CreateList", List.of(), keys));
@@ -313,24 +313,24 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
     @Override
     public CodeValue visitBinaryExpr(Expr.Binary expr) {
         CodeValue left = resolve(expr.left);
-        String leftString = left instanceof Number ? ((Number) left).getValue() : "%var(" + ((Variable) left).getName() + ")";
+        String leftString = left instanceof Number ? ((Number) left).value() : "%var(" + ((Variable) left).name() + ")";
         CodeValue right = resolve(expr.right);
-        String rightString = right instanceof Number ? ((Number) right).getValue() : "%var(" + ((Variable) right).getName() + ")";
-        String result = "%math(" + leftString + " " + expr.operator.getLexeme() + " " + rightString + ")";
+        String rightString = right instanceof Number ? ((Number) right).value() : "%var(" + ((Variable) right).name() + ")";
+        String result = "%math(" + leftString + " " + expr.operator.lexeme() + " " + rightString + ")";
         return new Number(result);
     }
 
     @Override
     public CodeValue visitUnaryExpr(Expr.Unary expr) {
         CodeValue value = resolve(expr.right);
-        String valueString = value instanceof Number ? ((Number) value).getValue() : "%var(" + ((Variable) value).getName() + ")";
+        String valueString = value instanceof Number ? ((Number) value).value() : "%var(" + ((Variable) value).name() + ")";
         return new Number("%math(" + valueString + "*-1)");
     }
 
     @Override
     public CodeValue visitVariableExpr(Expr.Variable expr) {
-        VariableScope scope = getScope(expr.name.getLexeme());
-        return new Variable(expr.name.getLexeme(), scope);
+        VariableScope scope = getScope(expr.name.lexeme());
+        return new Variable(expr.name.lexeme(), scope);
     }
 
     public VariableScope getScope(String varName) {

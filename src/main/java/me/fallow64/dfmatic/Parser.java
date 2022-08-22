@@ -4,6 +4,8 @@ import me.fallow64.dfmatic.builder.values.impl.GameValue;
 import me.fallow64.dfmatic.ast.Expr;
 import me.fallow64.dfmatic.ast.Sect;
 import me.fallow64.dfmatic.ast.Stmt;
+import me.fallow64.dfmatic.builder.values.impl.Number;
+import me.fallow64.dfmatic.builder.values.impl.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -93,14 +95,14 @@ public class Parser {
 
     private Stmt loopStatement() { // is this code a mess? kinda
         Expr to = null;
-        Expr from = new Expr.Literal(1.0);
-        Expr step = new Expr.Literal(1.0);
+        Expr from = new Expr.Literal(new Number("1.0"));
+        Expr step = new Expr.Literal(new Number("1.0"));
         TokenType varType = null;
         Token varName = null;
         if(match(TokenType.LEFT_PAREN)) {
 
             if(match(TokenType.GAME, TokenType.LOCAL, TokenType.SAVE)) {
-                varType = previous().getTokenType();
+                varType = previous().tokenType();
                 varName = consume(TokenType.IDENTIFIER, "Expect variable name."); // loop( type varName
 
                 if(match(TokenType.IN)) {
@@ -172,7 +174,7 @@ public class Parser {
         TokenType type = TokenType.LOCAL;
         if(match(TokenType.COLON)) {
             if(match(TokenType.LOCAL, TokenType.GAME, TokenType.SAVE)) {
-                type = previous().getTokenType();
+                type = previous().tokenType();
             } else {
                 throw error(peek(), "Expect variable scope.");
             }
@@ -361,9 +363,11 @@ public class Parser {
     }
 
     private Expr primary() {
-        if (match(TokenType.NUMBER, TokenType.STRING)) { // literal
-            return new Expr.Literal(previous().getLiteral());
-        }else if(match(TokenType.LEFT_BRACKET)) { // list
+        if (match(TokenType.NUMBER)) { // literal
+            return new Expr.Literal(new Number(previous().literal().toString()));
+        } else if(match(TokenType.STRING)) {
+            return new Expr.Literal(Text.fromColorCode(previous().literal().toString()));
+        } else if(match(TokenType.LEFT_BRACKET)) { // list
             Expr expr = new Expr.Literal(listArgs());
             consume(TokenType.RIGHT_BRACKET, "Expect ']' after list.");
             return expr;
@@ -378,7 +382,7 @@ public class Parser {
             consume(TokenType.RIGHT_PAREN, "Expect ')' after grouping expression.");
             return new Expr.Grouping(expr);
         } else if(match(TokenType.GAMEVALUE)) {
-            return new Expr.Literal(new GameValue((String)consume(TokenType.STRING, "Expect game value type in string.").getLiteral()));
+            return new Expr.Literal(new GameValue((String)consume(TokenType.STRING, "Expect game value type in string.").literal(), "Selection"));
         }
 
         throw error(peek(), "Expect expression.");
@@ -464,7 +468,7 @@ public class Parser {
     private boolean check(TokenType... types) {
         if(isAtEnd()) return false;
         for (TokenType type : types) {
-            if(peek().getTokenType() == type) return true;
+            if(peek().tokenType() == type) return true;
         }
         return false;
     }
@@ -484,7 +488,7 @@ public class Parser {
     }
 
     private boolean isAtEnd() {
-        return peek().getTokenType() == TokenType.EOF;
+        return peek().tokenType() == TokenType.EOF;
     }
 
     private ParseError error(Token token, String message) {
@@ -496,8 +500,8 @@ public class Parser {
         advance();
 
         while(!isAtEnd()) {
-            if(previous().getTokenType() == TokenType.SEMICOLON) return;
-            switch(peek().getTokenType()) { //TODO implement while and for
+            if(previous().tokenType() == TokenType.SEMICOLON) return;
+            switch(peek().tokenType()) { //TODO implement while and for
                 case SAVE, GAME, LOCAL, EVENT, FUNC, VAR, IF -> { return; }
             }
 

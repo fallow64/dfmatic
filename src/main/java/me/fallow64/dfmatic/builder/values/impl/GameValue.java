@@ -7,11 +7,6 @@ public class GameValue implements CodeValue {
     private final String type;
     private final String target;
 
-    public GameValue(String type) {
-        this.type = type;
-        this.target = "Selection";
-    }
-
     public GameValue(String type, String target) {
         this.type = type;
         this.target = target;

@@ -4,6 +4,7 @@ import me.fallow64.dfmatic.builder.Builder;
 import me.fallow64.dfmatic.builder.CodeTemplate;
 import me.fallow64.dfmatic.ast.Sect;
 import me.fallow64.dfmatic.util.ItemAPIUtil;
+import me.fallow64.dfmatic.util.Pair;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -73,21 +74,21 @@ public class DFMatic {
         }
     }
 
-    public static void error(int line, int column, String message) {
-        report(line, column, "", message);
+    public static void error(Pair<Integer, Integer> location, String message) {
+        report(location, "", message);
     }
 
     public static void error(Token token, String message) {
-        if(token.getTokenType() != TokenType.EOF) {
-            report(token.getLineNumber(), token.getColumnNumber(), " at '" + token.getLexeme() + "'", message);
+        if(token.tokenType() != TokenType.EOF) {
+            report(token.location(), " at '" + token.lexeme() + "'", message);
         } else {
-            report(token.getLineNumber(), token.getColumnNumber(), " at end", message);
+            report(token.location(), " at end", message);
         }
     }
 
-    private static void report(int line, int column, String where, String message) {
+    private static void report(Pair<Integer, Integer> location, String where, String message) {
         // this does not use System.err because of buffers messing up the order and stuff
-        System.out.println("[line " + line + ":" + column + "] Error" + where + ": " + message);
+        System.out.println("[line " + location.left() + ":" + location.right() + "] Error" + where + ": " + message);
         hadError = true;
     }
 

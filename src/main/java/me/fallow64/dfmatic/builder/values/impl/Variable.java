@@ -3,23 +3,7 @@ package me.fallow64.dfmatic.builder.values.impl;
 import me.fallow64.dfmatic.builder.values.CodeValue;
 import me.fallow64.dfmatic.builder.values.VariableScope;
 
-public class Variable implements CodeValue {
-
-    private final String name;
-    private final VariableScope scope;
-
-    public Variable(String name, VariableScope type) {
-        this.name = name;
-        this.scope = type;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public VariableScope getScope() {
-        return scope;
-    }
+public record Variable(String name, VariableScope scope) implements CodeValue {
 
     // scope is either unsaved, saved, or local
     // {"id": "var","data": {"name": "exampleGameVar","scope": "unsaved"}}

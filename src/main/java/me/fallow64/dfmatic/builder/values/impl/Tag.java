@@ -7,35 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Tag implements CodeValue {
-
-    private final String value;
-    private final String key;
-    private final String action;
-    private final String block;
-
-    public Tag(String value, String key, String action, String block) {
-        this.value = value;
-        this.key = key;
-        this.action = action;
-        this.block = block;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public String getAction() {
-        return action;
-    }
-
-    public String getBlock() {
-        return block;
-    }
+public record Tag(String value, String key, String action, String block) implements CodeValue {
 
     @Override
     public String serialize() {
@@ -44,15 +16,13 @@ public class Tag implements CodeValue {
 
     public static List<Tag> fromHashmap(HashMap<String, String> hashMap, String action, String block) {
         ArrayList<Tag> result = new ArrayList<>();
-        hashMap.forEach((k, v) -> {
-            result.add(new Tag(v, k, action, block));
-        });
+        hashMap.forEach((k, v) -> result.add(new Tag(v, k, action, block)));
         return result;
     }
 
     public static List<Tag> fromHashmapFromToken(HashMap<Token, Token> hashMap, String action, String block) {
         ArrayList<Tag> result = new ArrayList<>();
-        hashMap.forEach((k, v) -> result.add(new Tag((String)v.getLiteral(), (String)k.getLiteral(), action, block)));
+        hashMap.forEach((k, v) -> result.add(new Tag((String) v.literal(), (String) k.literal(), action, block)));
         return result;
     }
 }

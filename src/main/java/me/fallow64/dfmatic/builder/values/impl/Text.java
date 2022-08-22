@@ -2,13 +2,7 @@ package me.fallow64.dfmatic.builder.values.impl;
 
 import me.fallow64.dfmatic.builder.values.CodeValue;
 
-public class Text implements CodeValue {
-
-    private final String value;
-
-    public Text(String value) {
-        this.value = value;
-    }
+public record Text(String value) implements CodeValue {
 
     public static Text fromColorCode(String value) {
         char[] b = value.toCharArray(); // yoinked directly from spigot
@@ -19,10 +13,6 @@ public class Text implements CodeValue {
             }
         }
         return new Text(new String(b));
-    }
-
-    public String getValue() {
-        return value;
     }
 
     // {"id": "txt","data": {"name": "yo"}}

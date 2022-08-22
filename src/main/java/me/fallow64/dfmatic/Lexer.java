@@ -1,5 +1,7 @@
 package me.fallow64.dfmatic;
 
+import me.fallow64.dfmatic.util.Pair;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,7 +51,7 @@ public class Lexer {
             scanToken();
         }
 
-        tokens.add(new Token(TokenType.EOF, "", line, column, null));
+        tokens.add(new Token(TokenType.EOF, "", new Pair<>(line, column), null));
         return tokens;
     }
 
@@ -79,7 +81,7 @@ public class Lexer {
                     while(peek() != '\n' && !isAtEnd()) advance();
                 } else if(match('*')) {
                     while(true) {
-                        if(isAtEnd()) DFMatic.error(line, column, "Unterminated block comment.");
+                        if(isAtEnd()) DFMatic.error(new Pair<>(line, column), "Unterminated block comment.");
                         char next = advance();
                         if(next == '\n') {
                             line++;
@@ -104,7 +106,7 @@ public class Lexer {
                 } else if(isAlpha(c)) {
                     identifier();
                 } else {
-                    DFMatic.error(line, column, "Unexpected character.");
+                    DFMatic.error(new Pair<>(line, column), "Unexpected character.");
                 }
             }
         }
@@ -118,7 +120,7 @@ public class Lexer {
 
         // Unterminated string.
         if (isAtEnd()) {
-            DFMatic.error(line, column, "Unterminated string.");
+            DFMatic.error(new Pair<>(line, column), "Unterminated string.");
             return;
         }
 
@@ -163,7 +165,7 @@ public class Lexer {
 
     private void addToken(TokenType type, Object literal) {
         String lexeme = source.substring(start, current);
-        tokens.add(new Token(type, lexeme, line, column, literal));
+        tokens.add(new Token(type, lexeme, new Pair<>(line, column), literal));
     }
 
     private char advance() {
