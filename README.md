@@ -67,6 +67,7 @@ func sendMessage(message) {
 - [ ] Locations and Vectors (not totally sure about this)
 - [ ] Release (and maybe publish?) syntax highlight VSCode plugin
 - [ ] Release v1.0 to the public
+- [ ] Allow for deeply nested index and property setting (e.g `a.b.c = "hi";`)
    
 ## How To Use
 1. Download the JAR from [the releases section](https://github.com/fallow64/dfmatic/releases).
