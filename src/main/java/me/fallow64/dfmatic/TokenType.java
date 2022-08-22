@@ -8,6 +8,7 @@ public enum TokenType {
     WHILE, LOOP, IN, FROM, TO, STEP, BREAK, CONTINUE,
     RETURN,
     GAMEVALUE,
+    PRINT,
 
     LEFT_PAREN, RIGHT_PAREN,
     LEFT_BRACE, RIGHT_BRACE,
@@ -15,7 +16,7 @@ public enum TokenType {
 
     SEMICOLON, COLON, COMMA, DOT,
 
-    STAR, SLASH, PERCENT,
+    STAR, SLASH,
     PLUS, MINUS,
 
     BANG, BANG_EQUAL,

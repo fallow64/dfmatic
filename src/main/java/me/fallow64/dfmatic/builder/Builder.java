@@ -207,6 +207,12 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
     }
 
     @Override
+    public Void visitPrintStmt(Stmt.Print stmt) {
+        currentStack.add(new PlayerAction("SendMessage", List.of(), List.of(resolve(stmt.value))));
+        return null;
+    }
+
+    @Override
     public Void visitExpressionStmt(Stmt.Expression stmt) {
         resolve(stmt.expression);
         return null;
@@ -280,7 +286,9 @@ public class Builder implements Sect.Visitor<CodeTemplate>, Stmt.Visitor<Void>, 
 
         currentStack.add(new SetVariable("CreateList", List.of(), arguments));
         currentStack.add(new CallFunction(expr.name.lexeme()));
-        return new Variable("$rv", VariableScope.LOCAL);
+        CodeValue tempVar = RandomUtil.randomVar();
+        currentStack.add(new SetVariable("=", List.of(), List.of(tempVar, new Variable("$rv", VariableScope.LOCAL))));
+        return tempVar;
     }
 
     @Override

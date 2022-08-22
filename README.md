@@ -1,6 +1,9 @@
 # DFMatic
 A transpiled programming language for the [Diamondfire](https://mcdiamondfire.com) Minecraft server.
 
+## <span style="color: red;">WARNING</span>
+This project will most likely not be expanded upon further.
+
 ## Why?
 <b>Problem</b>: DF code is inherently hard to read, and hard to read code eventually turns into unmaintainable code. I
 often find myself starting at DF code I wrote a week ago and not being able to understand it without going block by
@@ -52,6 +55,7 @@ func sendMessage(message) {
 2. The resulting code will be longer and harder to read than hand-placing DF blocks. If requesting support or showing
    others your code, it would probably look pretty weird.
 3. It's not finished yet, so there could be breaking changes at any moment.
+4. Using items is a big pain.
 
 ## To-do
 
@@ -67,6 +71,7 @@ func sendMessage(message) {
 ## How To Use
 1. Download the JAR from [the releases section](https://github.com/fallow64/dfmatic/releases).
 2. Run the JAR with the file path of the source code. `java -jar dfmatic.jar mySourceCode.dfm`
+3. For CodeUtils/ItemAPI sport
 
 ## Credit
 * WLGRXD for the idea behind code block serialization.

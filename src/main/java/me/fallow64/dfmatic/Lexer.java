@@ -39,6 +39,7 @@ public class Lexer {
         keywords.put("continue", TokenType.CONTINUE);
         keywords.put("return", TokenType.RETURN);
         keywords.put("gamevalue", TokenType.GAMEVALUE);
+        keywords.put("print", TokenType.PRINT);
     }
 
     public Lexer(String source) {
@@ -71,7 +72,6 @@ public class Lexer {
             case '+' -> addToken(TokenType.PLUS);
             case '-' -> addToken(TokenType.MINUS);
             case '*' -> addToken(TokenType.STAR);
-            case '%' -> addToken(TokenType.PERCENT);
             case '!' -> addToken(match('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
             case '=' -> addToken(match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL);
             case '>' -> addToken(match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);

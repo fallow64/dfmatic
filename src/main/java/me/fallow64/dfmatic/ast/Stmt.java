@@ -18,6 +18,7 @@ public abstract class Stmt {
         R visitIfStmt(If stmt);
         R visitDFIfStmt(DFIf stmt);
         R visitDFStmt(DF stmt);
+        R visitPrintStmt(Print stmt);
         R visitExpressionStmt(Expression stmt);
     }
     public static class Variable extends Stmt {
@@ -185,6 +186,17 @@ public abstract class Stmt {
         public final Token actionName;
         public final HashMap<Token,Token> tags;
         public final List<Expr> arguments;
+    }
+    public static class Print extends Stmt {
+        public Print(Expr value) {
+            this.value = value;
+        }
+
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitPrintStmt(this);
+        }
+
+        public final Expr value;
     }
     public static class Expression extends Stmt {
         public Expression(Expr expression) {

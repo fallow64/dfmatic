@@ -89,6 +89,7 @@ public class Parser {
         if(match(TokenType.WHILE)) return whileStatement();
         if(match(TokenType.BREAK)) return breakStatement();
         if(match(TokenType.CONTINUE)) return continueStatement();
+        if(match(TokenType.PRINT)) return printStatement();
 
         return expressionStatement();
     }
@@ -265,6 +266,12 @@ public class Parser {
         return new Stmt.Return(keyword, value);
     }
 
+    private Stmt.Print printStatement() {
+        Expr value = expression();
+        consume(TokenType.SEMICOLON, "Expect ';' after print statement.");
+        return new Stmt.Print(value);
+    }
+
     private Stmt.Expression expressionStatement() {
         Expr expr = expression();
         consume(TokenType.SEMICOLON, "Expect ';' after expression.");
@@ -313,7 +320,7 @@ public class Parser {
     private Expr factor() {
         Expr expr = unary();
 
-        while(match(TokenType.STAR, TokenType.SLASH, TokenType.PERCENT)) {
+        while(match(TokenType.STAR, TokenType.SLASH)) {
             Token operator = previous();
             Expr right = unary();
             expr = new Expr.Binary(expr, operator, right);

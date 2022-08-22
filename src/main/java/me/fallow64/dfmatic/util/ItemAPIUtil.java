@@ -1,6 +1,7 @@
 package me.fallow64.dfmatic.util;
 
 import me.fallow64.dfmatic.builder.CodeTemplate;
+import org.java_websocket.exceptions.WebsocketNotConnectedException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,9 +20,8 @@ public class ItemAPIUtil {
                 itemAPIClient.sendTemplates(templates);
             }
             return true;
-        } catch(URISyntaxException ignored) {
-            return false;
-        }
+        } catch(URISyntaxException|WebsocketNotConnectedException ignored) {}
+        return false;
     }
 
 }

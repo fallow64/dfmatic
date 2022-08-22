@@ -18,7 +18,7 @@ import java.util.Scanner;
 public class DFMatic {
 
     public static boolean hadError = false;
-    public static boolean codeUtils = true;
+    public static boolean codeUtils = false;
     public static final String version = "0.1";
 
     public static void main(String[] args) throws IOException {
@@ -26,14 +26,14 @@ public class DFMatic {
 
         // scuffed cli arg parser
         for(String argument : arguments) {
-            if(Objects.equals(argument, "c") || Objects.equals(argument, "codeutils")) {
+            if(Objects.equals(argument, "-c") || Objects.equals(argument, "--codeutils")) {
                 arguments.remove(argument);
                 codeUtils = true;
                 break;
             }
         }
 
-        if(arguments.size() == 1) {
+        if(arguments.size() >= 1) {
             runFile(arguments.get(0));
         } else {
             runRepl();

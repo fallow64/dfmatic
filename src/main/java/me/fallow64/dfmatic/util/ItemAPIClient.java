@@ -29,7 +29,7 @@ public class ItemAPIClient extends WebSocketClient {
             String name = template.getHeader().getTemplateNameWithColors();
             String compressedTemplate = template.compressTemplate();
             send("{\"type\":\"template\",\"source\":\"DFMatic\",\"data\":\"{\\\"name\\\":\\\"" + name + "\\\",\\\"data\\\":\\\"" + compressedTemplate + "\\\"}\"}");
-            try {Thread.sleep(50); } catch(Exception ignored) {}
+            try {Thread.sleep(100); } catch(Exception ignored) {ignored.printStackTrace();}
         }
     }
 

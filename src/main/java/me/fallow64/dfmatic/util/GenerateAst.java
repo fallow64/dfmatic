@@ -43,6 +43,7 @@ public class GenerateAst {
                 "If         : Expr left | Token operator | Expr right | boolean inverted | List<Stmt> ifBranch | List<Stmt> elseBranch",
                 "DFIf       : Token block | Token action | List<Expr> args | boolean inverted | List<Stmt> ifBranch | List<Stmt> elseBranch",
                 "DF         : Token blockName | Token actionName | HashMap<Token,Token> tags | List<Expr> arguments",
+                "Print      : Expr value",
                 "Expression : Expr expression"
         ));
 
