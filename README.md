@@ -72,7 +72,7 @@ func sendMessage(message) {
 ## How To Use
 1. Download the JAR from [the releases section](https://github.com/fallow64/dfmatic/releases).
 2. Run the JAR with the file path of the source code. `java -jar dfmatic.jar mySourceCode.dfm`
-3. For CodeUtils/ItemAPI support use the flag -c.
+3. For CodeUtils/ItemAPI support use the flag `-c` (like `java -jar dfmatic.jar mySourceCode.dfm -c`). Although, the integration is very buggy.
 
 Check out the [wiki](https://github.com/fallow64/dfmatic/wiki) for documentation!
 
